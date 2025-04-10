@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="Today I had a great time presenting Enterprise Service Bus Development with NServiceBus at the Fall 2012 Twin Cities Code Camp. I wasn’t sure before presenting if we would have enough time to get into sagas, and as it turned out, we ran out of time right in the middle!
+So as promised, I finished the saga code and pushed it all to GitHub. Here is the link to my Twin Cities Code Camp 13 NServiceBus Example Code. Please feel free to clone it and explore!"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="NServiceBus at Twin Cities Code Camp 13"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="Today I had a great time presenting Enterprise Service Bus Development with NServiceBus at the Fall 2012 Twin Cities Code Camp. I wasn’t sure before presenting if we would have enough time to get into sagas, and as it turned out, we ran out of time right in the middle!
+So as promised, I finished the saga code and pushed it all to GitHub. Here is the link to my Twin Cities Code Camp 13 NServiceBus Example Code. Please feel free to clone it and explore!"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>NServiceBus at Twin Cities Code Camp 13 - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>NServiceBus at Twin Cities Code Camp 13</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            October 6, 2012
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>Today I had a great time presenting Enterprise Service Bus Development with NServiceBus at the Fall 2012 <a href="http://www.twincitiescodecamp.com/TCCC/Default.aspx" target="_blank" rel="noopener">Twin Cities Code Camp</a>. I wasn’t sure before presenting if we would have enough time to get into sagas, and as it turned out, we ran out of time right in the middle!</p>
+<p>So as promised, I finished the saga code and pushed it all to GitHub. Here is the link to my <a href="https://github.com/DavidBoike/TCCC13Demo" target="_blank" rel="noopener">Twin Cities Code Camp 13 NServiceBus Example Code</a>. Please feel free to clone it and explore!</p>
+<a id="more"></a>
+
+<h2 id="Review-Session-Rundown"><a href="#Review-Session-Rundown" class="headerlink" title="Review: Session Rundown"></a>Review: Session Rundown</h2><p> Just to review, here is what we did in the session:</p>
+<ul>
+<li><p>We created a bare-bones MVC 3 site with JSON only just for testing, added the NServiceBus NuGet package, and self-hosted NServiceBus through the ServiceBus class, so that we have easy access to the Bus instance as a public static variable.</p>
+</li>
+<li><p>We created a UserService.Messages assembly to contain our command and event classes, added the NServiceBus NuGet package (for the ICommand and IEvent marker interfaces, more on that later!) and set up directories for our Commands and Events.</p>
+</li>
+<li><p>We created a UserService assembly to be our user service endpoint, added the NServiceBus.Host NuGet package, and created an IConfigureThisEndpoint class, configuring the endpoint AsA_Publisher.</p>
+</li>
+<li><p>We created a CreateUserCmd and sent it from the MVC site to the UserService endpoint, to see how easy it is to send a message to the service layer and then publish an event.</p>
+</li>
+<li><p>We created a new EmailSender endpoint and subscribed to the user created event which would send an email (no doubt super-spammy) to the user, showing how easy it is to add existing functionality to a system without having to redeploy the existing code.</p>
+</li>
+<li><p>We deliberately caused an exception in one of our message handlers, to see how messages get retried, and then go through the process of second-level retries, before finally going to the error queue. Then we fixed that code and saw how easy it was to send it back with the ReturnToSourceQueue tool.</p>
+</li>
+<li><p>We decided to version the user created event to add a timestamp. We saw that even though we were now publishing a different message type, the existing subscribers did not need to be touched and kept working. We discussed how it was a good practice to use interfaces for event definitions because it enables you to easily version them, including the possibility for multiple inheritance.</p>
+</li>
+<li><p>We decided to enable message handlers in the MVC app and create a handler that would keep track of the last 10 users created in a queue. This enables a feature like <a href="https://www.phpbb.com/" target="_blank" rel="noopener">phpBB</a> that shows the most recent user(s) to have joined the site. We discussed how in a web farm, each web application instance will receive its own copy of the message so they will all get the same information and keep it in memory. We discussed how directly after a web server recycle, there would be no information, and how it’s important to discuss situations like this with the business, because more than likely they’ll be ok with it. Or more to the point, they won’t want you to expand scope enough to handle that instance.</p>
+<p>That was as far as we got during the session. We barely got started on a Saga and then we ran out of time.</p>
+</li>
+</ul>
+<p>Based on the direction during the session, I decided to have the example saga follow a workflow like this:</p>
+<ul>
+<li><p>Once a user is created, some sort of certificate has to be generated for them.</p>
+</li>
+<li><p>3 other related but separate tasks (for brevity) have to be accomplished. These tasks could represent all sorts of activities, such as:</p>
+<ul>
+<li>Contact a web service for an external CRM system to notify them of the new user.</li>
+<li>Send an email to management, or client services, or whomever.</li>
+</ul>
+</li>
+<li><p>Once all four of these things have been completed, publish a new event to announce that all user setup tasks have been completed.</p>
+<p>In order to accomplish this:</p>
+</li>
+<li><p>I created a Saga class, and a SagaData class.</p>
+</li>
+<li><p>I created processors for creating a user certificate, and for doing the Other Tasks, including commands to start the process, and event to announce that the process is complete.</p>
+</li>
+<li><p>I specified that our Saga is started by our user created event using the IAmStartedByMessages marker interface.</p>
+</li>
+<li><p>I specified that our Saga processes the Certificate/OtherTask processor events using the same IHandleMessages interface that we use for normal message handlers.</p>
+</li>
+<li><p>I implemented the Saga base class’s ConfigureHowToFindSaga method to show the Saga how to find the Saga for the Certificate/OtherTask events by matching up the UserId in the message with the UserId in the Saga Data. The framework takes care of actually managing the storage.</p>
+</li>
+<li><p>I implemented the Saga handler for the user created event. When processing it, the Saga will set up its SagaData with information from the message, and then Send() the messages to start the Certificate/OtherTask processes.</p>
+</li>
+<li><p>I implemented handlers for the Certificate/OtherTask completed events. Note that we have NO IDEA which ones will arrive in what order. Even if they completed in a certain order, MSMQ does not guarantee message delivery order! So on each handler we must update the Saga Data and then evaluate if all processing is complete so we can decide whether we are done.</p>
+</li>
+<li><p>I published a new event to announce that the Saga was done, and created another handler to consume it just to show completeness.</p>
+</li>
+</ul>
+<h4 id="Important-–-Sagas-Events-and-Auto-Subscription"><a href="#Important-–-Sagas-Events-and-Auto-Subscription" class="headerlink" title="Important – Sagas, Events, and Auto-Subscription"></a>Important – Sagas, Events, and Auto-Subscription</h4><p> In Version 2.0, a Saga would not automatically subscribe to any event messages that it processes. The reasons are really somewhat immaterial now, as in Version 3.0, this has been changed, as it was a <em>frequent</em> cause of confusion.</p>
+<p>However, in this example we have been cheating by putting so much functionality in one endpoint. I did this in the presentation just for speed, because you didn’t want to watch me create a bunch of new projects. Normally the processors that did the extra Certificate/OtherTask work would be over in other endpoints. Otherwise, what is the point of using events to decouple them if they’re going to be tightly coupled in the same assembly?</p>
+<p>How this affects us here is that an endpoint <strong>will normally NOT auto-subscribe to itself</strong>. There is a fluent configuration option .AllowSubscribeToSelf() that is available after you do .UnicastBus(), but I tried that and that opened up a whole can of worms for me, in this example. All of a sudden the endpoint wanted details on everything that might happen, for features we weren’t using. So, I decided it would be more straightforward to create a class, marked with IWantToRunAtStartup (neat name huh?) that manually subscribes the endpoint to the Saga events we mean to process.</p>
+<p>You can see this in the UserSaga.cs file in the repository. I created an IWantToRuNAtStartup class, asked the IoC framework to inject a Bus instance, and manually subscribed to each of the three message types.</p>
+<p>Keep in mind, <strong>I only did this because we were cheating!</strong> In normal circumstances, where your sagas and the events they process are separated in different endpoints, you shouldn’t have to worry about this!</p>
+<h2 id="Other-things-to-think-about"><a href="#Other-things-to-think-about" class="headerlink" title="Other things to think about"></a>Other things to think about</h2><p> Obviously I simplified some things for the purposes of a very quick demo, but there are ways that you can customize NServiceBus and make it easier to work with.</p>
+<h4 id="Unobtrusive-Mode"><a href="#Unobtrusive-Mode" class="headerlink" title="Unobtrusive Mode"></a>Unobtrusive Mode</h4><p> During the presentation I was marking commands and events with the ICommand and IEvent interfaces from the NServiceBus assembly. This works fine, but can get you into problems because of the necessary dependency taken on NServiceBus.dll.</p>
+<p>It’s possible to avoid this by specifying conventions for the type scanner to find your message contracts. If you noticed during the presentation, I mentioned how it’s advantageous to keep your Commands and Events in those named directories – this is because it sets up Visual Studio to make your namespaces end with “.Commands” and “.Events” which creates a useful convention to use!</p>
+<p>To learn more about this, check out the <a href="http://www.nservicebus.com/UnobtrusiveMode.aspx" target="_blank" rel="noopener">Unobtrusive Mode</a> page in the NServiceBus documentation.</p>
+<h4 id="Support-for-IoC-injection-in-MVC-Controllers"><a href="#Support-for-IoC-injection-in-MVC-Controllers" class="headerlink" title="Support for IoC injection in MVC Controllers"></a>Support for IoC injection in MVC Controllers</h4><p> During the presentation we used a ServiceBus static class to control our access to the Bus instance. It is much nicer to involve NServiceBus in MVC’s own dependency injection process so that you only need to add the IBus property to your controller class, and NServiceBus will fill it in for you the same way it does in a message handler class.</p>
+<p>To accomplish this, check out <a href="http://www.nservicebus.com/docs/Samples/AsyncPagesMvc3.aspx" target="_blank" rel="noopener">Using NServiceBus with ASP MVC 3</a> in the NServiceBus documentation.</p>
+<h2 id="Where-to-go-from-here"><a href="#Where-to-go-from-here" class="headerlink" title="Where to go from here?"></a>Where to go from here?</h2><p> Want to learn more? Here are some links to get you started:</p>
+<ul>
+<li><p>Clone the GitHub repository with the <a href="https://github.com/DavidBoike/TCCC13Demo" target="_blank" rel="noopener">source code from the session</a>, in case you missed it up above.</p>
+</li>
+<li><p>The <a href="http://www.nservicebus.com/" target="_blank" rel="noopener">NServiceBus Website</a></p>
+<ul>
+<li>The documentation has recently been updated for Version 3.</li>
+<li>Be sure to check out the <a href="http://www.nservicebus.com/Videos.aspx" target="_blank" rel="noopener">Videos</a> section!</li>
+<li>The best way to learn is to download NServiceBus and then go through the <a href="http://nservicebus.com/Samples.aspx" target="_blank" rel="noopener">many sample projects</a>.</li>
+</ul>
+</li>
+<li><p>For Questions</p>
+<ul>
+<li>Ask any question on the Yahoo! Group for NServiceBus.</li>
+<li>Ask on Stack Overflow – just tag your question with NServiceBus.</li>
+<li>Twitter Hashtag: #NServiceBus</li>
+</ul>
+</li>
+<li><p>Videos</p>
+<ul>
+<li>For another great intro to NServiceBus, check out Andreas Ohlund’s presentation <a href="http://skillsmatter.com/podcast/home/death-batch-job/te-4548" target="_blank" rel="noopener">Death to the Batch Job</a>.</li>
+<li>For those interested in NServiceBus on Windows Azure, check out the video <a href="http://cloudshaper.wordpress.com/2011/10/19/video-simplifying-distributed-application-development-with-nservicebus-and-the-windows-azure-platform/" target="_blank" rel="noopener">Simplifying distributed application development with NServiceBus and the Windows Azure Platform</a>.</li>
+<li><a href="http://blog.pluralsight.com/2012/10/03/video-put-your-messaging-on-the-nservice-bus/" target="_blank" rel="noopener">Pluralsight now has a course on NServiceBus</a>.</li>
+</ul>
+</li>
+<li><p>Formal Training</p>
+<ul>
+<li><a href="http://www.udidahan.com/training/" target="_blank" rel="noopener">Training is available</a> specifically on NServiceBus. Another course that is available is Udi’s 5-day Advanced Distributed System Design (ADSD) course with SOA and DDD. It’s not specifically on NServiceBus but instead covers the SOA principles that led to its creation. I attended Udi’s ADSD course and it was <em>fantastic.</em></li>
+</ul>
+</li>
+</ul>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

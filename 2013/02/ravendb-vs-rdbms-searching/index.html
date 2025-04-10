@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="Recently Charlie Barker (@Porkstone on Twitter) asked me what I felt were pros and cons of using RavenDB over a standard relational database. In this series of posts I highlight the differences between RavenDB and a RDBMS that I have experienced after completing three projects that incorporate Raven in some capacity.
+Originally I wrote this series as 4 posts, after which my boss read the series and asked me a bunch of pointed and very interesting questions. These made me realize I forgot this very important advantage that Raven has over pretty much any relational database out there – searching!
+Why did I forget about it? Because I was approaching the blog series from the perspective of things both Raven and a relational database do, and how they did them. But relational databases really don’t do searching, at least, not with the same level of basic competence that they store data. My last experience was with Microsoft SQL Server Full Text Search and it wasn’t fun. If you’ve tried, you probably know what I’m talking about. If not, you don’t have to take my word for it – take it from these guys instead."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="RavenDB vs RDBMS: Searching"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="Recently Charlie Barker (@Porkstone on Twitter) asked me what I felt were pros and cons of using RavenDB over a standard relational database. In this series of posts I highlight the differences between RavenDB and a RDBMS that I have experienced after completing three projects that incorporate Raven in some capacity.
+Originally I wrote this series as 4 posts, after which my boss read the series and asked me a bunch of pointed and very interesting questions. These made me realize I forgot this very important advantage that Raven has over pretty much any relational database out there – searching!
+Why did I forget about it? Because I was approaching the blog series from the perspective of things both Raven and a relational database do, and how they did them. But relational databases really don’t do searching, at least, not with the same level of basic competence that they store data. My last experience was with Microsoft SQL Server Full Text Search and it wasn’t fun. If you’ve tried, you probably know what I’m talking about. If not, you don’t have to take my word for it – take it from these guys instead."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>RavenDB vs RDBMS: Searching - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>RavenDB vs RDBMS: Searching</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            February 6, 2013
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p><em>Recently <a href="http://www.dualbotic.com/DB/blog/" target="_blank" rel="noopener">Charlie Barker</a> (<a href="https://twitter.com/porkstone" target="_blank" rel="noopener">@Porkstone</a> on Twitter) asked me what I felt were pros and cons of using RavenDB over a standard relational database. In this series of posts I highlight the differences between RavenDB and a RDBMS that I have experienced after completing three projects that incorporate Raven in some capacity.</em></p>
+<p>Originally I wrote this series as 4 posts, after which my boss read the series and asked me a bunch of pointed and very interesting questions. These made me realize I forgot this very important advantage that Raven has over pretty much any relational database out there – searching!</p>
+<p>Why did I forget about it? Because I was approaching the blog series from the perspective of things both Raven and a relational database do, and how they did them. But relational databases really don’t do searching, at least, not with the same level of basic competence that they store data. My last experience was with Microsoft SQL Server Full Text Search and it wasn’t fun. If you’ve tried, you <a href="http://programmers.stackexchange.com/questions/84592/why-dont-databases-have-good-full-text-indexes" target="_blank" rel="noopener">probably know what I’m talking about</a>. If not, you don’t have to take my word for it – take it from <a href="http://blog.stackoverflow.com/2008/11/sql-2008-full-text-search-problems/" target="_blank" rel="noopener">these guys</a> instead.</p>
+<a id="more"></a>
+
+<p>Because of these problems, most people who need to do some sort of search turn to a search index product, such as <a href="http://lucene.apache.org/core/" target="_blank" rel="noopener">Lucene</a>and <a href="http://lucene.apache.org/solr/" target="_blank" rel="noopener">SOLR</a>. I’ve developed search solutions with SOLR myself. It’s a Java service you run in Tomcat that provides search services via a REST API, and it can be harder to set up than it sounds, unless you’re proficient in <a href="http://wiki.apache.org/solr/DisMaxQParserPlugin" target="_blank" rel="noopener">DisMax</a> index tuning. I was not. We were eventually forced to bring in a SOLR consultant in order to get the sort of relevance matching in our search results that our business stakeholders expected. It turns out that Google is your enemy here – they make searching look <em>too easy</em> and then your users start to assume that it actually is.</p>
+<p>RavenDB takes the crazy approach of baking search right into the database by building their entire indexing infrastructure on top of Lucene, but then they provide a slick .NET LINQ-ified API on top of it. You don’t need to manage complex schema XML files, and you don’t need to manually keep your search index up to date. As you add documents to your database, Raven automatically reindexes those documents, keeping the underlying Lucene indexes fresh.</p>
+<p>Once your data is indexed with Lucene this way, it opens up all sorts of interesting possibilites.</p>
+<h2 id="Full-Text-Search-that-Works"><a href="#Full-Text-Search-that-Works" class="headerlink" title="Full Text Search that Works"></a>Full Text Search that Works</h2><p> When your index (which you construct using C# code) specifies that a field is analyzed for searching, you can magically do full text searching on it.</p>
+<pre><code>var results = s.Query()
+    .Where(f =&gt; f.Name == &quot;David Boike&quot;)
+    .ToList();</code></pre><p> Assuming the Name property is analyzed, the database is no longer performing a straight equality comparison. It is rooting words and doing all the things that search indexes do. This means that “Dave” will also be found. Results are ordered by the relevance field, which you can also return and show to your user.</p>
+<p>If you need more, you can tap into the power of Lucene for multiple field searches:</p>
+<pre><code>var results = s.Advanced.LuceneQuery()
+    .Where(&quot;FirstName:David LastName:Boike&quot;)
+    .ToList();</code></pre><p> For more information, take a look at the RavenDB documentation for <a href="http://ravendb.net/docs/2.0/client-api/querying/query-and-lucene-query" target="_blank" rel="noopener">Query and LuceneQuery</a>.</p>
+<h2 id="Suggest"><a href="#Suggest" class="headerlink" title="Suggest"></a>Suggest</h2><p> So that stuff is nice, but you could probably accomplish that with SQL Server, it just wouldn’t be as easy or as fast. How about something SQL Server could never do?</p>
+<p>My mother is a 3rd grade teacher and she chastises her students for relying on a word processor’s spell checker. It’s not going to catch when you’re writing about your favorite movie “The Loin King”. But if you <a href="https://www.google.com/search?q=The%20Loin%20King" target="_blank" rel="noopener">search Google for “The Loin King”</a>, what does it say? It says “Showing results for “The <strong>Lion</strong> King”.</p>
+<p>Google is smart. Raven allows you to be smart too. It includes a Suggest API so you can execute your search, then check the number of results, and if you return none, ask the database for suggestions about what the user could have meant based on current data.</p>
+<p>Then you have a choice. Maybe there’s one suggestion and, like Google did for The Loin King, you can just redirect. Maybe you can present the user a list of possibilities and let them choose. Either way, Raven gives you the power to be like Google.</p>
+<p>For more details check out <a href="http://ayende.com/blog/4696/raven-suggest" target="_blank" rel="noopener">Ayende’s post on Raven Suggest</a>, and for even more cool things you can do with Suggest, check out <a href="http://ayende.com/blog/122881/full-text-search-takes-you-only-so-far" target="_blank" rel="noopener">Full Text Search takes you only so far</a>.</p>
+<h2 id="Simple-search-without-sacrifice"><a href="#Simple-search-without-sacrifice" class="headerlink" title="Simple search without sacrifice"></a>Simple search without sacrifice</h2><p> Have you ever seen an advanced search form that contains 20 different text boxes for searching different fields in a complex data set? Do you know anyone who would really enjoy using such a thing?</p>
+<p>Me either.</p>
+<p>The best searches on the planet all have just one text box and it does everything. SOLR search indexes give you the ability to do this through a structure that essentially says “Take the contents of all these fields and copy them into this imaginary field I will call Query.” Being built on the same foundation as SOLR, Raven can do that too.</p>
+<p>Simply define an index for returns a property Query, which is an array of objects  - the objects are all of the different fields that must be searchable.</p>
+<p>I could show you a complete example but Ayende has already done a great job of that. He is the master, so I’ll defer to him. Go check out his post <a href="http://ayende.com/blog/152833/orders-search-in-ravendb" target="_blank" rel="noopener">Orders Search in RavenDB</a>.</p>
+<h2 id="Geo-Searches"><a href="#Geo-Searches" class="headerlink" title="Geo Searches"></a>Geo Searches</h2><p> I feel the need to mention geo-spatial searches, since it is part of searching. I have done this with SQL Server 2008 and found it to work adequately, but have not yet had the opportunity to explore spatial searches with RavenDB. If this topic is of interest to you, check out Ayende’s blog series on the topic:</p>
+<ul>
+<li><a href="http://ayende.com/blog/156385/geo-location-amp-spatial-searches-with-ravendbndash-part-indash-setup" target="_blank" rel="noopener">Part I: Setup</a></li>
+<li><a href="http://ayende.com/blog/156386/geo-location-amp-spatial-searches-with-ravendbndash-part-iindash-modeling" target="_blank" rel="noopener">Part II: Modeling</a></li>
+<li><a href="http://ayende.com/blog/156417/geo-location-amp-spatial-searches-with-ravendbndash-part-iii-importing" target="_blank" rel="noopener">Part III: Importing</a></li>
+<li><a href="http://ayende.com/blog/156418/geo-location-amp-spatial-searches-with-ravendbndash-part-iv-searching" target="_blank" rel="noopener">Part IV: Searching</a></li>
+<li><a href="http://ayende.com/blog/156449/geo-location-amp-spatial-searches-with-ravendbndash-part-v-spatial-searching" target="_blank" rel="noopener">Part V: Spatial Searching</a></li>
+<li><a href="http://ayende.com/blog/156705/geo-location-amp-spatial-searches-with-ravendbndash-part-vindash-database-modeling" target="_blank" rel="noopener">Part VI: Database Modeling</a></li>
+<li><a href="http://ayende.com/blog/156706/geo-location-amp-spatial-searches-with-ravendbndash-part-viindash-ravendb-client-vs-separate-rest-service" target="_blank" rel="noopener">Part VII: Client vs. Separate REST Service</a></li>
+</ul>
+<h2 id="Index-Boosting"><a href="#Index-Boosting" class="headerlink" title="Index Boosting"></a>Index Boosting</h2><p> Frequently when designing a search solution you will want to say that one field is more important than another. If a word or phrase matches in a Title, then that’s a better match than if it matches in the Keywords, which is still a better match than if it occurs in the 17th paragraph of text.</p>
+<p>SQL Server, of course, cannot do this. Lucene and SOLR can, of course, but it can be a pain to set it up. In Raven you specify these right in your index definition in C# code, right where you like to live anyway.</p>
+<p>Raven provides the ability to do field level boosting (e.g. a Title match is better than Keyword match) but also the entire document based on whatever you can define in code. This is very useful for situations like content publishing, where you want the search to prefer newer content over old, everything else being equal. With document-based boosting, you can use a function that declines logarithmically with age so that the relevance of your documents gradually declines over time.</p>
+<p>For more information, see <a href="http://ayende.com/blog/153185/ravendb-index-boosting" target="_blank" rel="noopener">Ayende’s boosting post</a> or the <a href="http://ravendb.net/docs/2.0/client-api/querying/static-indexes/boosting" target="_blank" rel="noopener">RavenDB Documentation on Boosting</a>.</p>
+<h2 id="More-Like-This"><a href="#More-Like-This" class="headerlink" title="More Like This"></a>More Like This</h2><p> The ability to find and link to similar content (without any direct user involvement like manual linking or maintenance of tags or something similar) is a very powerful concept. In publishing, providing links to related content can drive more page views per visitor, longer session time, and by extension, more ad impressions and profit.</p>
+<p>In other arenas, the capability to search for More Like This means that you only have to get <em>close</em> to the thing you really want, and once you do, it becomes easier to find the true target.</p>
+<p>In any case, with SQL Server you would have to roll your own More Like This implementation in every scenario, but with RavenDB you can get it more or less out of the box.</p>
+<p>For more information, check out the <a href="http://ravendb.net/docs/2.0/server/bundles/morelikethis" target="_blank" rel="noopener">RavenDB Documentation on More Like This</a>. Keep in mind that in RavenDB 1.0 builds, this was provided as a plugin that was required a server and client component, so most people didn’t have it turned on by default. However in RavenDB 2.0 most of these core bundles have been made easier to include on a per-database basis within one RavenDB server, making it much easier to roll out this feature.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

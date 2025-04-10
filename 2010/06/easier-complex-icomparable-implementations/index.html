@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="I know a lot of us are using the LINQ OrderBy() method to get our data shuffled in the right order, but on occasion I still do like implementing IComparable, especially when defining the default, intrinsic sort scheme for a particular class.
+What I don’t like is implementing IComparable when I want to compare on more than one thing.
+I don’t like this kind of code because the engineer in me balks at essentially doing each comparison more than once, first for equality, and then for direction:"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Easier Complex IComparable&lt;T&gt; Implementations"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="I know a lot of us are using the LINQ OrderBy() method to get our data shuffled in the right order, but on occasion I still do like implementing IComparable, especially when defining the default, intrinsic sort scheme for a particular class.
+What I don’t like is implementing IComparable when I want to compare on more than one thing.
+I don’t like this kind of code because the engineer in me balks at essentially doing each comparison more than once, first for equality, and then for direction:"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Easier Complex IComparable&lt;T&gt; Implementations - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Easier Complex IComparable<T> Implementations</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            June 28, 2010
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>I know a lot of us are using the LINQ OrderBy() method to get our data shuffled in the right order, but on occasion I still do like implementing IComparable, especially when defining the default, intrinsic sort scheme for a particular class.</p>
+<p>What I don’t like is implementing IComparable when I want to compare on more than one thing.</p>
+<p>I don’t like this kind of code because the engineer in me balks at essentially doing each comparison more than once, first for equality, and then for direction:</p>
+<a id="more"></a>
+
+<pre><code>public int CompareTo(SomeObject other)
+{
+    if (this.Prop1 != other.Prop1)
+        return this.Prop1.CompareTo(other.Prop1);
+    else if (this.Prop2 != other.Prop2)
+        return this.Prop2.CompareTo(other.Prop2);
+    // .... etc.
+    return 0;
+}</code></pre><p>However, expanding it to get rid of this double evaluation yields this nastiness:</p>
+<pre><code>public int CompareTo(SomeObject other)
+{
+    int cmp = this.Prop1.CompareTo(other.Prop1);
+    if (cmp != 0)
+    {
+        cmp = this.Prop2.CompareTo(other.Prop2);
+        if (cmp != 0)
+            return cmp;
+    }
+    return 0;
+}</code></pre><p>Yuck. I decided I needed a way to have some of the elegance of LINQ in an IComparable shell, and here it is:</p>
+<pre><code>public class ComplexCompare
+{
+    private int value;
+    private ComplexCompare()
+    {
+    }
+    public static ComplexCompare By(T a, T b)
+    {
+        return By(a, b, true);
+    }
+    public static ComplexCompare By(T a, T b, bool ascending)
+    {
+        ComplexCompare cc = new ComplexCompare();
+        if (ascending)
+            cc.value = Comparer.Default.Compare(a, b);
+        else
+            cc.value = Comparer.Default.Compare(b, a);
+        return cc;
+    }
+    public static ComplexCompare By(T a, T b, IComparer comparer)
+    {
+        ComplexCompare cc = new ComplexCompare();
+        cc.value = comparer.Compare(a, b);
+        return cc;
+    }
+    public ComplexCompare ThenBy(T a, T b)
+    {
+        return ThenBy(a, b, true);
+    }
+    public ComplexCompare ThenBy(T a, T b, bool ascending)
+    {
+        // Only compare more specific items if the preceding items have been equal
+        if (value == 0)
+        {
+            if (ascending)
+                this.value = Comparer.Default.Compare(a, b);
+            else
+                this.value = Comparer.Default.Compare(b, a);
+        }
+        return this;
+    }
+    public int End()
+    {
+        return value;
+    }
+}</code></pre><p>ComplexCompare can be used like this:</p>
+<pre><code>public int CompareTo(SomeObject other)
+{
+    return ComplexCompare.By(this.Prop1, other.Prop1) // ascending by default
+        .ThenBy(this.Prop2, other.Prop2, false) // but easy to change to descending
+        .ThenBy(this.Prop3, other.Prop3) // each call can compare a completely different type
+        .End(); // stops the fun and returns the int value
+}</code></pre><p>Now a hardcore computer science person would tell me that all this extra abstraction adds overhead, and in a really tight loop with millions of rows, using this scheme to compare items would surely be catastrophic! However, I’m not usually one to give in to <a href="http://www.codinghorror.com/blog/2009/01/the-sad-tragedy-of-micro-optimization-theater.html" target="_blank" rel="noopener">Micro-Optimization Theater</a>; I’m usually comparing 30-40 items, not millions. My primary concern is that code I write can be instantly understood when viewed by one of my peer developers, and I think ComplexCompare (although I’m not in love with the name) will help me to do that.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

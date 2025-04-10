@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="As readers of this blog already know, NServiceBus offers a great framework for building distributed systems with publish/subscribe, automatic retries, long-running business processes, high performance, and scalability. It offers a fully pluggable transport mechanism so that it can be run over MSMQ, RabbitMQ, Windows Azure, or even use SQL Server as its queuing infrastructure. No matter which transport you choose, NServiceBus enables you to build a highly reliable system with minimal effort.
+But who wants that?
+Honestly the developers at Particular have gone a little bit overboard with how easy they have made it to build these robust distributed systems. This is why it’s such good news that, thanks to me, there is finally an NServiceBus transport available that supports RFC 1149: IP Datagrams over Avian Carriers.
+That’s right, MSMQ, RabbitMQ, and all those existing transports? Their major failing is they’re all too reliable. There’s just no challenge in creating a system on such a reliable transport. You do that, and your system may be laden with undesirable side effects like running smoothly, and never losing data. As a result, you might get to head home from work on time and be forced to spend time with your family who loves you. You might never get phone calls waking you up in the middle of the night to deal with some sort of crisis. Can you imagine?
+And worst of all, without the system crashing down every Monday, Tuesday, and every other Thursday, your boss may start to realize he doesn’t need someone as skilled as you to run it anymore, and may replace you with a couple college interns.
+So what you need is a much less reliable transport, and that transport is NServiceBus.Rfc1149. You’re welcome."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="NServiceBus Transport for RFC 1149"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="As readers of this blog already know, NServiceBus offers a great framework for building distributed systems with publish/subscribe, automatic retries, long-running business processes, high performance, and scalability. It offers a fully pluggable transport mechanism so that it can be run over MSMQ, RabbitMQ, Windows Azure, or even use SQL Server as its queuing infrastructure. No matter which transport you choose, NServiceBus enables you to build a highly reliable system with minimal effort.
+But who wants that?
+Honestly the developers at Particular have gone a little bit overboard with how easy they have made it to build these robust distributed systems. This is why it’s such good news that, thanks to me, there is finally an NServiceBus transport available that supports RFC 1149: IP Datagrams over Avian Carriers.
+That’s right, MSMQ, RabbitMQ, and all those existing transports? Their major failing is they’re all too reliable. There’s just no challenge in creating a system on such a reliable transport. You do that, and your system may be laden with undesirable side effects like running smoothly, and never losing data. As a result, you might get to head home from work on time and be forced to spend time with your family who loves you. You might never get phone calls waking you up in the middle of the night to deal with some sort of crisis. Can you imagine?
+And worst of all, without the system crashing down every Monday, Tuesday, and every other Thursday, your boss may start to realize he doesn’t need someone as skilled as you to run it anymore, and may replace you with a couple college interns.
+So what you need is a much less reliable transport, and that transport is NServiceBus.Rfc1149. You’re welcome."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>NServiceBus Transport for RFC 1149 - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>NServiceBus Transport for RFC 1149</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            April 1, 2014
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>As readers of this blog already know, <a href="http://particular.net/NServiceBus" target="_blank" rel="noopener">NServiceBus</a> offers a great framework for building distributed systems with publish/subscribe, automatic retries, long-running business processes, high performance, and scalability. It offers a fully pluggable transport mechanism so that it can be run over MSMQ, RabbitMQ, Windows Azure, or even use SQL Server as its queuing infrastructure. No matter which transport you choose, NServiceBus enables you to build a highly reliable system with minimal effort.</p>
+<p><strong>But who wants that?</strong></p>
+<p>Honestly the developers at Particular have gone a little bit overboard with how easy they have made it to build these robust distributed systems. This is why it’s such good news that, thanks to me, there is finally an NServiceBus transport available that supports <a href="http://tools.ietf.org/html/rfc1149" target="_blank" rel="noopener">RFC 1149: IP Datagrams over Avian Carriers</a>.</p>
+<p>That’s right, MSMQ, RabbitMQ, and all those existing transports? Their major failing is they’re all too reliable. There’s just no challenge in creating a system on such a reliable transport. You do that, and your system may be laden with undesirable side effects like running smoothly, and never losing data. As a result, you might get to head home from work on time and be forced to spend time with your family who loves you. You might never get phone calls waking you up in the middle of the night to deal with some sort of crisis. Can you imagine?</p>
+<p>And worst of all, without the system crashing down every Monday, Tuesday, and every other Thursday, your boss may start to realize he doesn’t need someone as skilled as you to run it anymore, and may replace you with a couple college interns.</p>
+<p>So what you need is a much less reliable transport, and that transport is <a href="https://github.com/DavidBoike/NServiceBus.Rfc1149" target="_blank" rel="noopener">NServiceBus.Rfc1149</a>. You’re welcome.</p>
+<a id="more"></a>
+
+<p>So here’s how it works:</p>
+<ul>
+<li><p>Messages are stored as text files on a flash drive.</p>
+</li>
+<li><p>The transport uses the first removable drive it can find with a “NServiceBus.Rfc1149” directory at the root level. It doesn’t create this for you. That would be too easy, and you’re not in this for easy.</p>
+</li>
+<li><p>A directory is created for each machine name.</p>
+</li>
+<li><p>Within the machine name directory, a directory is created for each queue.</p>
+</li>
+<li><p>Sent messages are placed in the appropriate directory for the destination machine and queue.</p>
+</li>
+<li><p>Each endpoint reads files from the appropriate queue directory.</p>
+</li>
+<li><p>In order for the messages to be received by the other machines, you must remove the flash drive from the current machine, attach it to the leg of your avian carrier (a <a href="http://en.wikipedia.org/wiki/Rock_pigeon" target="_blank" rel="noopener">domesticated rock pigeon, <em>Columba livia</em></a>, is recommended) and send the carrier to the physical location of the destination server. Every minute, the transport counts the messages bound for other machines and makes a recommendation for a destination server based on highest pending message count.</p>
+</li>
+<li><p>If no suitable flash drive can be found, it is impossible to send outgoing messages, so sending messages will fail silently. It’s more fun that way.</p>
+</li>
+<li><p>Because no messages can be sent if no flash drive is present, it’s advisable to use multiple flash drives with multiple avian carriers. We call this <em>scaling out</em>.</p>
+<p>Sound good? Here’s how to use it:</p>
+</li>
+<li><p>Clone the <a href="https://github.com/DavidBoike/NServiceBus.Rfc1149" target="_blank" rel="noopener">NServiceBus.Rfc1149</a> source from GitHub and build it yourself. Seriously, when it comes to development getting too easy, NuGet packages are half of the problem.</p>
+</li>
+<li><p>Reference the NServiceBus.Rfc1149 assembly in your endpoints.</p>
+</li>
+<li><p>Stock up on birdseed and newspaper for your avian carriers.</p>
+</li>
+<li><p>Configure the RFC 1149 transport with the following:</p>
+<script src="https://gist.github.com/9879119.js"></script>
+
+</li>
+</ul>
+<p>Then fire up your solution and enjoy the low latency and unreliability! Your job security should be ensured for years.</p>
+<hr>
+<p><em>Yes, this is an April Fools post, but the transport really does work, after a fashion, and can be a useful exercise for understanding a little more about how NServiceBus works at its lower levels. <a href="https://github.com/DavidBoike/NServiceBus.Rfc1149" target="_blank" rel="noopener">Check out the source code on GitHub</a>; it’s well-documented and should be instructive.</em></p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="I used to be a practitioner of Inbox Infinite. The incoming messages would just land at the top of my inbox, and as I scrolled down, the date of the email would slowly get closer and closer to the date when I originally opened my Gmail account.
+Let’s just say I could scroll down a long damn way.
+My primary method of determining if something was handled was whether or not it was read. If I needed to look at it later, mark it as unread. It worked out alright, as a software developer I didn’t get that much email to start with, and work generally happened only during work hours.
+When I joined Particular Software it became quickly apparent that how I managed my email was going to have to change."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Inbox Few - How I wrangle my email"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="I used to be a practitioner of Inbox Infinite. The incoming messages would just land at the top of my inbox, and as I scrolled down, the date of the email would slowly get closer and closer to the date when I originally opened my Gmail account.
+Let’s just say I could scroll down a long damn way.
+My primary method of determining if something was handled was whether or not it was read. If I needed to look at it later, mark it as unread. It worked out alright, as a software developer I didn’t get that much email to start with, and work generally happened only during work hours.
+When I joined Particular Software it became quickly apparent that how I managed my email was going to have to change."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Inbox Few - How I wrangle my email - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Inbox Few - How I wrangle my email</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            January 31, 2017
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>I used to be a practitioner of Inbox Infinite. The incoming messages would just land at the top of my inbox, and as I scrolled down, the date of the email would slowly get closer and closer to the date when I originally opened my Gmail account.</p>
+<p>Let’s just say I could scroll down a long damn way.</p>
+<p>My primary method of determining if something was <em>handled</em> was whether or not it was read. If I needed to look at it later, mark it as unread. It worked out alright, as a software developer I didn’t get that much email to start with, and work generally happened only during work hours.</p>
+<p>When I joined <a href="https://particular.net" target="_blank" rel="noopener">Particular Software</a> it became quickly apparent that how I managed my email was going to have to change.</p>
+<a id="more"></a>
+
+<p>Particular Software is a 100% dispersed organization with no “home office.” We have people in North America, Europe, and Australia. The sun never goes down on us, and so throughout most of the week, during every hour of the day, someone <em>somewhere</em> is working.</p>
+<p>We also do all our work in GitHub, from work on code in our public repositories, right down to discussing changes to our parental leave policy.</p>
+<p>This results in <em>lots of notification emails</em>. The problem isn’t just dealing with them in my inbox. I also need to curtail the sheer amount of them that are archived so that I have a remote chance of finding anything <em>else</em> in my email.</p>
+<p>So here’s the system I’ve come up with to wrangle my email. I’m not necessarily saying it will work for you, but I’ve found it works for me.</p>
+<h2 id="Basic-setup-and-filters"><a href="#Basic-setup-and-filters" class="headerlink" title="Basic setup and filters"></a>Basic setup and filters</h2><p>I like to use a native Mail client, not the Gmail web interface, especially since I prefer to blend my personal and work email together into one experience. I actually really like Apple’s built-in Mail app when I’m on my MacBook Pro.</p>
+<p>So the first thing I had to turn off is Gmail’s tabbed email system that separates Social/Promotions/Updates/Forums content into different tabs in the Gmail web interface, because it doesn’t do any good from a native client.</p>
+<p>Instead, I set up filters to map this kind of stuff to labels/folders in Gmail. You can take advantage of Gmail’s intelligence to identify these messages and direct them where you want.</p>
+<p>Using the searches <code>category:social</code> and <code>category:promotions</code>, you can create Gmail filters to move these to separate labels, skip the inbox, and never mark it as important. I direct these to labels called <strong>Notifications</strong> and <strong>Notify</strong>, and this cleans up an amazing amount of what would otherwise land in my Inbox.</p>
+<p>I frequently skim these folders once per day, and mark them read en masse.</p>
+<p>I also have another Gmail filter for advertising that somehow makes it through Gmail’s algorithms. The search is along the lines of <code>from:(A OR B OR C OR ...)</code> and I add to it as necessary. Honestly though, I can’t remember the last time I amended that filter. Gmail seems to be really good at that.</p>
+<p>Lastly, I have a filter for <code>from:notifications@github.com</code> that applies a <strong>GitHub</strong> label, but here I do <em>not skip the Inbox</em>. More on this later.</p>
+<h2 id="Inbox-Few"><a href="#Inbox-Few" class="headerlink" title="Inbox Few"></a>Inbox Few</h2><p>It didn’t take long after joining Particular to realize that using Read/Unread status on a message to keep track of what I needed to do with it would not work. I just get too many GitHub notifications.</p>
+<p>Particular Software creates a messaging product called NServiceBus, so it made sense to treat my Inbox as a persistent queue. If it’s in my inbox, that means there’s something there for me to do. If there isn’t anything for me to do, it shouldn’t be in my inbox.</p>
+<p>I tried Inbox Zero, but found it impossible to get to zero. I’m not sure if that would even be a good thing. If I didn’t have anything to do in my persistent queue, that might be bad for job security?</p>
+<p>In any case, I’ve settled on Inbox Few. When I seriously triage my email, I try to tackle small, achievable tasks that I can quickly dispatch, in any order that happens to suit my fancy. Sometimes, this is just typing a quick response on a GitHub issue to voice my opinion. Other times it involves a little more work, but never an hour-long task. If something is too big of a time suck, I leave it alone. It will probably need its own period of undivided attention anyway, so I leave it until I can devote that time to it.</p>
+<p>I keep going at this roughly until the scrollbar on my message list disappears and I can see all the remaining messages in one view. This is a highly subjective measure of course. I have my email client set up in the Folders On Left + Message List On Top + Message Preview On Bottom configuration, and I don’t maximize my email client to the whole screen. At this moment, I have 11 items in my Inbox and I’m feeling very good about that.</p>
+<p>Once I get down to roughly this scale, what’s left can fit in my head and I can start to make better value judgments about what Big Ticket task is truly worth my time and then start on that. Usually I’ll also take a scan of the <a href="https://github.com/issues/assigned" target="_blank" rel="noopener">GitHub issues assigned to me</a> and take that into consideration.</p>
+<p>I also try, whenever possible, to eliminate items where I’m waiting for something. In most GitHub issues, I trust there will be some further activity from one of my teammates that will “wake me up” with a new notification. However, in some situations that isn’t likely to happen, so in those cases I’m quick to use <a href="https://get.slack.help/hc/en-us/articles/208423427-Set-a-reminder" target="_blank" rel="noopener">Slack’s reminder feature</a> to point me back to a specific issue URL at some time in the future.</p>
+<p>I feel the biggest hole in this process is currently when I expect that someone else will reply to an issue, giving me my wake-up call, but it never happens. This is when I run the risk of forgetting about an issue for an extended period of time, especially if I’m not assigned to it. I’m currently not sure how to address that.</p>
+<h2 id="Cleaning-up-cruft"><a href="#Cleaning-up-cruft" class="headerlink" title="Cleaning up cruft"></a>Cleaning up cruft</h2><p>Sometimes I’ll want to find something useful in my email, and for that I have to rely upon search. It really doesn’t help if there are hundreds of GitHub notifications, ads, or other cruft gumming up everything, turning my signal-to-noise ratio to utter crap.</p>
+<p>But on the other hand, I don’t want to get rid of these emails immediately, especially the GitHub notifications. After I archive a message, if someone later responds on that issue, it raises the entire thread back into my Inbox. This way I can see most of the context right there in my email client, and I don’t have to waste half of my day launching into a GitHub browser window only to find out which issue that was anyway.</p>
+<p>To deal with this, I use a <a href="https://www.google.com/script/start/" target="_blank" rel="noopener">Google Apps Script</a> to delete email conversations out of Gmail after a certain period.</p>
+<p>These scripts are really easy to make. They are stored in Google Drive, so you just go to the link above and click the <strong>Start Scripting</strong> button. Save it in a Drive folder and you can set it up to run once per night without having to hassle with a crontab or anything.</p>
+<p>Here’s my script that archives messages with the <em>Notify</em> and <em>Advertising</em> labels after 30 days, which is plenty long enough to retrieve a coupon the day my wife wants to go shopping. It also archives messages in the <strong>GitHub</strong> label (remember that from earlier?) after 180 days.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">function archive(label, days, trash) &#123;</span><br><span class="line">  var query &#x3D; &#39;label:&#39; + label + &#39; is:read older_than:&#39; + days + &#39;d&#39;;</span><br><span class="line">  var emails &#x3D; GmailApp.search(query, 0, 500);</span><br><span class="line">  Logger.log(&#39;Folder &quot;&#39; + label + &#39;&quot;: retrieved &#39; + parseInt(emails.length, 0) + &#39; emails to &#39; + (trash ? &#39;delete.&#39; : &#39;archive.&#39;));</span><br><span class="line">  for(var i&#x3D;0; i&lt;emails.length; i +&#x3D; 100) &#123;</span><br><span class="line">    var batch &#x3D; emails.slice(i, i + 100);</span><br><span class="line">    Logger.log(&#39;...Processed &#39; + parseInt(batch.length, 0) + &#39; threads.&#39;);</span><br><span class="line">    if(trash) &#123;</span><br><span class="line">      GmailApp.moveThreadsToTrash(batch);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      GmailApp.moveThreadsToArchive(batch);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function main() &#123;</span><br><span class="line">  archive(&#39;notify&#39;, 30, true);</span><br><span class="line">  archive(&#39;advertising&#39;, 30, true);</span><br><span class="line">  archive(&#39;github&#39;, 180, true);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Through the clock-ish icon in the script editor, you can schedule this script to run the <code>main</code> function on a scheduled basis. Mine runs daily between midnight and 1am in order to make sure the batch size doesn’t exceed the 500 allowed by the script. (If you try to make that larger, the script can fail.) When I originally created it, I had to run it manually many <em>many</em> times to get through all the junk in my previous Inbox Infinite.</p>
+<p>You may notice the script has an option for archiving messages that I’m not currently using. If you, like me, are currently at Inbox Infinite, you can apply a label to all the messages in your Inbox, and then use that label to archive messages until you get from Inbox Infinite down to at least Inbox Semi-Recent.</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>As I said at the outset, this may not work for everybody, but it seems to be working pretty well for me. I always have a persistent task list available to me, which I can manage from my laptop or from my phone in a similar fashion. It also allows me to do high-level triage of “Yep, got it” type things easily from my phone during downtime when I would be bored anyway.</p>
+<p>Some have suggested I use Google Inbox instead of all this, especially because the “Snooze” feature might help with the problem of getting a message out of the way but coming back to it later, whether or not anyone has replied.</p>
+<p>My problem with that is that I like email and how it’s set up, I just want it to work for me. I don’t see the need to totally reimagine it, nor do I want to give up my native client for a webapp, or have to try out a bunch of native Inbox clients like <a href="http://www.boxyapp.co/" target="_blank" rel="noopener">Boxy</a>.</p>
+<p>Basically, what I’ve got now seems to be working out fine. Why would I mess with that?</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="At work we use Hudson Continuous Integration for our build servers because, among other reasons:
+
+It’s FREE!
+It runs on Windows (for our C# builds) and on Mac/Linux (for our iOS/Android builds).
+It has a web-based GUI that is MUCH easier to use than the XML-driven config used by CruiseControl.NET, which we used before switching to Hudson.
+It has a rich system of plugins for adding functionality.
+Did I mention it’s FREE?
+
+The one nice thing about CruiseControl.NET was that because it had one complex XML configuration file, I would only edit that file in source control so that I could back out my changes if I screwed it up. Now I need a way to back up the Hudson configuration files so that if one of my build servers goes up in flames, I can get my team back in business quickly.
+A good backup solution needs to be automatic and offsite, and due to the magic of distributed version control and the inherent job execution nature of Hudson, we can back up Hudson with Hudson. If this isn’t the ultimate in universe folding in on itself awesome, I don’t know what is."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Backing up Hudson, with Hudson"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="At work we use Hudson Continuous Integration for our build servers because, among other reasons:
+
+It’s FREE!
+It runs on Windows (for our C# builds) and on Mac/Linux (for our iOS/Android builds).
+It has a web-based GUI that is MUCH easier to use than the XML-driven config used by CruiseControl.NET, which we used before switching to Hudson.
+It has a rich system of plugins for adding functionality.
+Did I mention it’s FREE?
+
+The one nice thing about CruiseControl.NET was that because it had one complex XML configuration file, I would only edit that file in source control so that I could back out my changes if I screwed it up. Now I need a way to back up the Hudson configuration files so that if one of my build servers goes up in flames, I can get my team back in business quickly.
+A good backup solution needs to be automatic and offsite, and due to the magic of distributed version control and the inherent job execution nature of Hudson, we can back up Hudson with Hudson. If this isn’t the ultimate in universe folding in on itself awesome, I don’t know what is."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Backing up Hudson, with Hudson - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Backing up Hudson, with Hudson</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            July 9, 2011
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>At work we use Hudson Continuous Integration for our build servers because, among other reasons:</p>
+<ul>
+<li>It’s <strong>FREE!</strong></li>
+<li>It runs on Windows (for our C# builds) and on Mac/Linux (for our iOS/Android builds).</li>
+<li>It has a web-based GUI that is MUCH easier to use than the XML-driven config used by <a href="http://sourceforge.net/projects/ccnet/" target="_blank" rel="noopener">CruiseControl.NET</a>, which we used before switching to Hudson.</li>
+<li>It has a rich system of plugins for adding functionality.</li>
+<li>Did I mention it’s <strong>FREE?</strong></li>
+</ul>
+<p>The one nice thing about CruiseControl.NET was that because it had one complex XML configuration file, I would only edit that file in source control so that I could back out my changes if I screwed it up. Now I need a way to back up the Hudson configuration files so that if one of my build servers goes up in flames, I can get my team back in business quickly.</p>
+<p>A good backup solution needs to be automatic and offsite, and due to the magic of distributed version control and the inherent job execution nature of Hudson, we can back up Hudson <em>with Hudson</em>. If this isn’t the ultimate in universe folding in on itself awesome, I don’t know what is.</p>
+<a id="more"></a>
+
+<p>To get your own backup started:</p>
+<ol>
+<li>Get an offsite <a href="http://hginit.com/" target="_blank" rel="noopener">Mercurial</a> repository that you can push to over the Internet using the credentials that your Hudson server runs under. We use (and I heavily recommend) <a href="http://www.fogcreek.com/kiln/" target="_blank" rel="noopener">Kiln</a> from <a href="http://www.fogcreek.com/" target="_blank" rel="noopener">Fog Creek Software</a>, which combines hosted Mercurial source control with killer code review tools and a host of other power tools, such as a code search facility that I now could not live without. Check it out - it will change your life.</li>
+<li>Make sure you have Hudson’s Mercurial plugin installed.</li>
+<li>Create a new Hudson project named “Hudson Backup” or something similar.</li>
+<li>Under Source Code Management, enter your Mercurial repository URL. Unlike a normal project where you pull code from a repository and then build it, we will instead be pushing backups to this repository, but defining it here identifies it as Hudson’s workspace.</li>
+<li>Under Build Triggers, check “Build Periodically” and in the Schedule textbox, enter “@hourly”. This will run the backup job every hour, but will only push new changes to your Mercurial repository when there are changes (when you’ve modified something in the Web UI).</li>
+<li>Under Build, add a new build step of type “Execute Windows batch command”. The script follows:</li>
+</ol>
+<!-- -->
+
+<pre><code>:: Copy the main Hudson config file
+copy &quot;%BASE%\config.xml&quot; &quot;%WORKSPACE%\config.xml&quot;
+:: Copy each job&apos;s config file
+for /f &quot;delims=|&quot; %%f in (&apos;dir /b %BASE%\jobs&apos;) do (
+mkdir &quot;%WORKSPACE%\jobs\%%f&quot;
+copy &quot;%BASE%\jobs\%%f\config.xml&quot; &quot;%WORKSPACE%\jobs\%%f\config.xml&quot; /Y
+)
+:: If there are changes, commit them to local repository then push
+hg commit --addremove --message &quot;Backing up changes to Hudson configuration.&quot;
+hg push</code></pre><p>Now, the job will run every hour, and if there are any changes, they will be committed and pushed to your remote Mercurial repository. <em>Even your backup job is backed up by your backup job!</em></p>
+<p>If you were to ever lose your build server, you could set up a new Hudson server, clone your Mercurial repository locally, copy the backup config files to your Hudson directory, and then execute the Reload Configuration from Disk command in Hudson, and you’re back in business.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

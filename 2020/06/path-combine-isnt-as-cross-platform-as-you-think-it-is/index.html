@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="I started using .NET pretty close to the beginning, in either 2002 or 2003. It’s hard to accurately remember things that happened before I had kids.
+Ever since that time, using Path.Combine() has been a best practice. You shouldn’t just concatenate paths together with \\ after all, one day it’s possible that .NET could be cross-platform and then all that Windows-specific code will be broken! With each passing year, I grew less and less convinced that cross-platform .NET would ever happen but dutifully continued using Path.Combine() anyway.
+Well now with .NET Core, cross-platform .NET is a reality, but as it turns out, Path.Combine() isn’t quite the cross-platform panacea I feel I was promised.
+In this article, I’ll tell you what to look out for when using Path.Combine() on multiple platforms so you won’t get burned the same way I was."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Path.Combine() isn&#39;t as cross-platform as you think it is"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="I started using .NET pretty close to the beginning, in either 2002 or 2003. It’s hard to accurately remember things that happened before I had kids.
+Ever since that time, using Path.Combine() has been a best practice. You shouldn’t just concatenate paths together with \\ after all, one day it’s possible that .NET could be cross-platform and then all that Windows-specific code will be broken! With each passing year, I grew less and less convinced that cross-platform .NET would ever happen but dutifully continued using Path.Combine() anyway.
+Well now with .NET Core, cross-platform .NET is a reality, but as it turns out, Path.Combine() isn’t quite the cross-platform panacea I feel I was promised.
+In this article, I’ll tell you what to look out for when using Path.Combine() on multiple platforms so you won’t get burned the same way I was."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/2020/banana-slip.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/2020/banana-slip.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Path.Combine() isn&#39;t as cross-platform as you think it is - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/2020/banana-slip.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Path.Combine() isn't as cross-platform as you think it is</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            June 17, 2020
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>I started using .NET pretty close to the beginning, in either 2002 or 2003. It’s hard to accurately remember things that happened before I had kids.</p>
+<p>Ever since that time, using <code>Path.Combine()</code> has been a best practice. You shouldn’t just concatenate paths together with <code>\\</code> after all, one day it’s possible that .NET could be cross-platform and then all that Windows-specific code will be broken! With each passing year, I grew less and less convinced that cross-platform .NET would ever happen but dutifully continued using <code>Path.Combine()</code> anyway.</p>
+<p>Well now with .NET Core, cross-platform .NET is a reality, but as it turns out, <code>Path.Combine()</code> isn’t quite the cross-platform panacea I feel I was promised.</p>
+<p>In this article, I’ll tell you what to look out for when using <code>Path.Combine()</code> on multiple platforms so you won’t get burned the same way I was.</p>
+<a id="more"></a>
+
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>The point of <code>Path.Combine()</code> is pretty simple on the surface.</p>
+<p>Let’s say you have a base path <code>C:\base\path</code> and you want to add the filename <code>myfile.txt</code> to it.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var basePath &#x3D; @&quot;C:\base\path&quot;;</span><br><span class="line">var filename &#x3D; &quot;myfile.txt&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>You could just concatenate the strings:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var fullPath &#x3D; basePath + &quot;\\&quot; + filename;</span><br></pre></td></tr></table></figure>
+
+<p>Or now that we have string interpolation you could concatenate it this way:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var fullPath &#x3D; $&quot;&#123;basePath&#125;\\&#123;filename&#125;&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>But that’s bad when we enter the realm of cross-platform because if I were executing this on macOS or Linux, or anything UNIX-like, my path separator would be different:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var basePath &#x3D; &quot;&#x2F;Users&#x2F;david&quot;;</span><br><span class="line">var filename &#x3D; &quot;myfile.txt&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>And so, using either of the concatenation options above, my result would be <code>/Users/david\myfile.txt</code>. That <em>will not</em> end the way you want it to.</p>
+<p>That’s where <code>Path.Combine()</code> comes in. Instead of string concatenation, you call this instead:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var fullPath &#x3D; Path.Combine(basePath, filename);</span><br><span class="line">&#x2F;&#x2F; Windows Result: C:\base\path\myfile.txt</span><br><span class="line">&#x2F;&#x2F; Mac&#x2F;Linux Result: &#x2F;Users&#x2F;david&#x2F;myfile.txt</span><br></pre></td></tr></table></figure>
+
+<p>So all we have to do is use <code>Path.Combine()</code> and our apps will be 100% ready to run cross-platform. Hooray!</p>
+<p>If only it were that simple.</p>
+<h2 id="Problem-1-Multi-segment-paths"><a href="#Problem-1-Multi-segment-paths" class="headerlink" title="Problem 1: Multi-segment paths"></a>Problem 1: Multi-segment paths</h2><p>Turns out, a lot of people use <code>Path.Combine()</code> <em>wrong</em> and there’s no feedback to tell you it’s wrong.</p>
+<p>At a basic level, <code>Path.Combine(a,b)</code> simply concatenates <code>a</code> and <code>b</code> with whatever the local path separator is, as determined by <code>Path.DirectorySeparatorChar</code>. You can kind of think of it like this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public static string Combine(string path1, string path2)</span><br><span class="line">&#123;</span><br><span class="line">    return path1 + Path.DirectorySeparatorChar + path2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>There is <strong>absolutely zero</strong> checking for whether those two parameters contain <em>existing</em> directory separator characters for any platform. No sort of cross-platform normalization of directory separators going on there.</p>
+<p>So what happens if you do this?</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Path.Combine(basePath, @&quot;a\b\c&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>Keeping with our same <code>basePath</code> values for each platform above, for Windows you get <code>C:\base\path\a\b\c</code> which works great. But everywhere else, you get <code>/Users/david/a\b\c</code> which is not what you’re angling for.</p>
+<p>But lots of developers do this, because there’s really no hint anywhere that a multi-segement path as one of those parameters is a bad idea. Let’s take a look at the method signature, with the xmldoc that defines what you get in Intellisense:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;&#x2F; &lt;summary&gt;Combines two strings into a path.&lt;&#x2F;summary&gt;</span><br><span class="line">&#x2F;&#x2F;&#x2F; &lt;param name&#x3D;&quot;path1&quot;&gt;The first path to combine.&lt;&#x2F;param&gt;</span><br><span class="line">&#x2F;&#x2F;&#x2F; &lt;param name&#x3D;&quot;path2&quot;&gt;The second path to combine.&lt;&#x2F;param&gt;</span><br><span class="line">&#x2F;&#x2F;&#x2F; &lt;returns&gt;</span><br><span class="line">&#x2F;&#x2F;&#x2F; The combined paths. If one of the specified paths is a zero-length string,</span><br><span class="line">&#x2F;&#x2F;&#x2F; this method returns the other path. If path2 contains an absolute path,</span><br><span class="line">&#x2F;&#x2F;&#x2F; this method returns path2.</span><br><span class="line">&#x2F;&#x2F;&#x2F; &lt;&#x2F;returns&gt;</span><br><span class="line">public static string Combine(string path1, string path2);</span><br></pre></td></tr></table></figure>
+
+<p>Now, the first parameter is usually an established path that’s known to exist, so I have no qualms about <code>path1</code> here. But <code>path2</code> is extremely misleading. The definition of a <em>path</em> is a potentially really long string containing multiple directory names. That’s clearly not what is expected. Perhaps <code>path2</code> should be renamed to <code>pathSegment</code> or something else, but <code>path2</code> and the totally unhelpful parameter description “The second path to combine” are the exact opposite of what the method implementation expects.</p>
+<p>The only real clue that something could be amiss (short of looking at the source code and understanding what it does…or reading this post) is that the <code>Combine</code> method has additional overloads that accept more parameters…</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static string Combine(string path1, string path2, string path3)</span><br><span class="line">public static string Combine(string path1, string path2, string path3, string path4)</span><br><span class="line">public static string Combine(params string[] paths)</span><br></pre></td></tr></table></figure>
+
+<p>…but really, these all continue the sins of the first.</p>
+<p>So instead of this…</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Path.Combine(basePath, @&quot;a\b\c&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>…we should really be using this instead:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Path.Combine(basePath, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>But unfortunately, it’s pretty common to see a lot more of the former than the latter.</p>
+<h2 id="Problem-2-Windows-is-too-forgiving"><a href="#Problem-2-Windows-is-too-forgiving" class="headerlink" title="Problem 2: Windows is too forgiving"></a>Problem 2: Windows is too forgiving</h2><p>I’ve seen <code>Path.Combine(…)</code> used as sort of a low-rent version of <code>Server.MapPath(string path)</code> method, a staple of my (thankfully long-over) ASP.NET Web Forms days.</p>
+<p>For those not familiar, <code>Server.MapPath(string path)</code> is <a href="https://docs.microsoft.com/en-us/dotnet/api/system.web.httpserverutility.mappath" target="_blank" rel="noopener">part of the System.Web assembly</a> and its purpose is to return a physical path that corresponds to a specific virtual path. So if you start out with a path from a web request, like <code>/path/to/file.html</code>, then <code>Server.MapPath(…)</code> understands what the root folder of the website is, as well as (if I recall correctly) any virtual directories set up in IIS as well. So then if your webroot is <code>C:\inetpub\wwwroot</code> and your virtual path is <code>/path/to/my-file.txt</code>, then <code>Server.MapPath(&quot;/path/to/my-file.txt&quot;)</code> will return that the file physically lives at <code>C:\inetpub\wwwroot\path\to\my-file.txt</code>.</p>
+<p>All well and good, but living in <code>HttpServerUtility</code> in the monolithic <code>System.Web</code> assembly meant tight coupling to IIS. If you were building something with a different web framework, you didn’t have that.</p>
+<p>So now, if you Google <a href="https://lmgtfy.com/?q=aspnetcore+MapPath" target="_blank" rel="noopener">aspnetcore MapPath</a>, what do you get? My <a href="https://www.mikesdotnetting.com/article/302/server-mappath-equivalent-in-asp-net-core" target="_blank" rel="noopener">first search result</a> says what?</p>
+<p>It says use <code>Path.Combine(webRoot, &quot;test.txt&quot;)</code>.</p>
+<p>OK, that works. What if your controller action is a catch-all like this?</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">string webRoot;</span><br><span class="line"></span><br><span class="line">[HttpGet(&quot;&#123;*filePath&#125;&quot;)]</span><br><span class="line">public async Task&lt;ActionResult&gt; Get(string filePath)</span><br><span class="line">&#123;</span><br><span class="line">    var physicalPath &#x3D; Path.Combine(webRoot, filePath);</span><br><span class="line">    &#x2F;&#x2F; Do stuff</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>If you try accessing something a few directories deep, you’ll end up with effectively this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var physicalPath &#x3D; Path.Combine(@&quot;C:\root&quot;, &quot;virtual&#x2F;path-to&#x2F;file.html&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>And the result is: <code>C:\root\virtual/path/to/file.html</code>. That’s right, you’ll get <strong>mixed</strong> path separators.</p>
+<p>But because Windows is too forgiving, <code>File.Exists()</code> on this path will return true, and you can happily return a <code>FileResponse</code> using that path. Maybe if it were a little more strict, people would get the memo that you aren’t supposed to have existing delimiters in <code>Path.Combine()</code> parameters.</p>
+<p>For the record, the next few search results right at this moment:</p>
+<ol start="2">
+<li>A <a href="https://stackoverflow.com/questions/49398965/what-is-the-equivalent-of-server-mappath-in-asp-net-core" target="_blank" rel="noopener">StackOverflow question</a> where the top-rated and accepted answer points out <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.hosting.iwebhostenvironment" target="_blank" rel="noopener">IWebHostEnvironment</a> to get the root directory but not how to safely combine paths. That answer links to a different answer on the same page which…uses <code>Path.Combine()</code>.</li>
+<li><a href="https://stackoverflow.com/questions/43992261/how-to-get-absolute-path-in-asp-net-core-alternative-way-for-server-mappath/43992313" target="_blank" rel="noopener">Another StackOverflow question</a>, same focus on how to get the web root and same use of <code>Path.Combine()</code>.</li>
+<li><a href="https://gunnarpeipman.com/aspnet-core-content-webroot-server-mappath/" target="_blank" rel="noopener">Blog post</a> that ignores the “combine” part entirely.</li>
+<li>A DZone scrape of the article in #4.</li>
+<li><a href="https://inthetechpit.com/2020/02/17/how-to-use-server-mappath-in-asp-net-core/" target="_blank" rel="noopener">Another blog post</a> that ignores combining.</li>
+<li><a href="https://kontext.tech/column/aspnet-core/228/servermappath-equivalent-in-aspnet-core-2" target="_blank" rel="noopener">Anotehr blog post</a> that uses <code>Path.Combine()</code>.</li>
+<li>An <a href="https://github.com/dotnet/aspnetcore/issues/3824" target="_blank" rel="noopener">aspnetcore GitHub issue titled “Server.MapPath in AspNetCore”</a> that ends with “We don’t have plans to implement this.”</li>
+</ol>
+<p>You get the idea? How many developers would search farther than this? Maybe I’ll get lucky and this post will crack the top 5 and help somebody out. Maybe that person is you!</p>
+<h2 id="Problem-3-Root-paths"><a href="#Problem-3-Root-paths" class="headerlink" title="Problem 3: Root paths"></a>Problem 3: Root paths</h2><p>Consider these two examples:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Console.WriteLine(Path.Combine(Environment.CurrentDirectory, &quot;\\abc\\abc&quot;));</span><br><span class="line">Console.WriteLine(Path.Combine(Environment.CurrentDirectory, &quot;&#x2F;abc&#x2F;abc&quot;));</span><br></pre></td></tr></table></figure>
+
+<p>The <code>Path.Combine(…)</code> method has some kinda-sorta nods to trying to maybe a <em>little bit</em> be cross-platform, but it doesn’t work out too well in practice. In an internal <code>IsPathRooted()</code> method, a check is made to see if the first character of the second parameter is a directory separator or volume separator character.</p>
+<p>On Windows, <code>\\</code> is considered the primary directory separator, while <code>/</code> is considered an <em>alternate</em> directory separator. So the result is this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; Windows</span><br><span class="line">\abc\abc</span><br><span class="line">&#x2F;abc&#x2F;abc</span><br></pre></td></tr></table></figure>
+
+<p>The beginning character was taken to represent the “root” of a filesystem, and so the first parameter wasn’t used at all. The answer in both cases was whatever the second path was.</p>
+<p>Now here’s the result on my Mac:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;Users&#x2F;david&#x2F;testapp&#x2F;bin&#x2F;Debug&#x2F;netcoreapp3.1&#x2F;\abc\abc</span><br><span class="line">&#x2F;abc&#x2F;abc</span><br></pre></td></tr></table></figure>
+
+<p>Well, that’s interesting. On macOS (and I assume on Linux as well, though I did not check) the primary directory separator AND the alternate directory separator are both <code>/</code> and the character <code>\\</code> is never considered, <em>ever</em>.</p>
+<p>This is a bit of a corner-case, but still, drastically different results from code executing on different platforms. All the more reasons that <code>Path.Combine()</code> parameters should not be allowed to contain directory separators of any kind.</p>
+<p>Perhaps one day I’ll get around to writing a Roslyn analyzer to make that a compile-time error.</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>For a method that was created more than a decade before the framework was made cross-platform, it’s kind of amazing that <code>Path.Combine(…)</code> works at all. It does was it does, but you need to be aware of its idiosyncracies if you plan to use it in a cross-platform application or library.</p>
+<p>There are really three basic, interrelated rules of thumb to keep in mind:</p>
+<ol>
+<li>The first parameter of <code>Path.Combine(…)</code> should be thought of as a base path, and you should always be absolutely sure that path already exists on the system.</li>
+<li><strong>Every other parameter</strong> (because there are multiple overloads for different numbers of parameters) should not contain <strong>any</strong> path separator characters, from <strong>any</strong> platform.</li>
+<li>When using <code>Path.Combine(…)</code> with user input, arbitrary inputs from a web request, or basically anything that isn’t a <em>literal</em> string, you should take care to split it apart based on all the different platform-specific directory separator characters (in practice, <code>/</code> and <code>\\</code>) and then feed the results of that into <code>Path.Combine(params string[] paths)</code>.</li>
+</ol>
+<p>One example of how to do #3 is this method:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">using System.IO;</span><br><span class="line">using System.Linq;</span><br><span class="line"></span><br><span class="line">public static class CrossPlatform</span><br><span class="line">&#123;</span><br><span class="line">    public static string PathCombine(string basePath, params string[] additional)</span><br><span class="line">    &#123;</span><br><span class="line">        var splits &#x3D; additional.Select(s &#x3D;&gt; s.Split(pathSplitCharacters)).ToArray();</span><br><span class="line">        var totalLength &#x3D; splits.Sum(arr &#x3D;&gt; arr.Length);</span><br><span class="line">        var segments &#x3D; new string[totalLength + 1];</span><br><span class="line">        segments[0] &#x3D; basePath;</span><br><span class="line">        var i &#x3D; 0;</span><br><span class="line">        foreach(var split in splits)</span><br><span class="line">        &#123;</span><br><span class="line">            foreach(var value in split)</span><br><span class="line">            &#123;</span><br><span class="line">                i++;</span><br><span class="line">                segments[i] &#x3D; value;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return Path.Combine(segments);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    static char[] pathSplitCharacters &#x3D; new char[] &#123; &#39;&#x2F;&#39;, &#39;\\&#39; &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Unfortunately, all the string splitting and then recombining allocates a lot more memory and will be quite a bit slower than <code>Path.Combine(…)</code> on a hot path, but more performant code will be inherently less readable and may need to re-implement some of the base assumptions that you take for granted in <code>Path.Combine()</code>.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="We all have drilled into us how important it is to use a 301 redirect when changing a website’s address so that the site’s page rank and other SEO goodies are preserved.  Since it’s so important, you’d think it would be easier, or maybe even straightforward to accomplish.
+I recently moved this blog from a subdirectory of another domain to its very own domain, and wanted to do just that, and found it anything but easy.
+People with Apache webservers have long had the ability to perform 301 redirects in a fairly straightforward manner using .htaccess files.  However, IIS users have not been so lucky.  Although I have a WordPress blog (because it’s the best out there) I am an ASP.NET developer and I need to have a Windows server playground to try stuff out in, so I have PHP 5 and .NET 3.5 running on Windows Server 2008.  So .htaccess files aren’t an option for me.
+At first I tried redirecting purely with PHP inside the bounds of WordPress.  I tried multiple redirection plugins, none of which seemed to work.  They would redirect my site, but when I checked with Fiddler it would always be a 302 redirect.  Unacceptable."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="301 Redirects with the IIS7 Rewrite Module"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="We all have drilled into us how important it is to use a 301 redirect when changing a website’s address so that the site’s page rank and other SEO goodies are preserved.  Since it’s so important, you’d think it would be easier, or maybe even straightforward to accomplish.
+I recently moved this blog from a subdirectory of another domain to its very own domain, and wanted to do just that, and found it anything but easy.
+People with Apache webservers have long had the ability to perform 301 redirects in a fairly straightforward manner using .htaccess files.  However, IIS users have not been so lucky.  Although I have a WordPress blog (because it’s the best out there) I am an ASP.NET developer and I need to have a Windows server playground to try stuff out in, so I have PHP 5 and .NET 3.5 running on Windows Server 2008.  So .htaccess files aren’t an option for me.
+At first I tried redirecting purely with PHP inside the bounds of WordPress.  I tried multiple redirection plugins, none of which seemed to work.  They would redirect my site, but when I checked with Fiddler it would always be a 302 redirect.  Unacceptable."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>301 Redirects with the IIS7 Rewrite Module - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>301 Redirects with the IIS7 Rewrite Module</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            March 8, 2010
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>We all have drilled into us how important it is to use a 301 redirect when changing a website’s address so that the site’s page rank and other SEO goodies are preserved.  Since it’s so important, you’d think it would be easier, or maybe even straightforward to accomplish.</p>
+<p>I recently moved this blog from a subdirectory of another domain to its very own domain, and wanted to do just that, and found it anything but easy.</p>
+<p>People with Apache webservers have long had the ability to perform 301 redirects in a fairly straightforward manner using .htaccess files.  However, IIS users have not been so lucky.  Although I have a WordPress blog (because it’s the best out there) I am an ASP.NET developer and I need to have a Windows server playground to try stuff out in, so I have PHP 5 and .NET 3.5 running on Windows Server 2008.  So .htaccess files aren’t an option for me.</p>
+<p>At first I tried redirecting purely with PHP inside the bounds of WordPress.  I tried multiple redirection plugins, none of which seemed to work.  They would redirect my site, but when I checked with <a href="http://www.fiddler2.com/fiddler2/" target="_blank" rel="noopener">Fiddler</a> it would always be a 302 redirect.  Unacceptable.</p>
+<a id="more"></a>
+
+<p>I even tried monkeying directly with WordPress’s index.php file, which I was not happy about doing because I knew it would make upgrading WordPress more difficult.  Even with the following PHP-based redirect as the first few lines of the PHP file…</p>
+<pre><code>// Note, didn&apos;t work for me, provided for reference only
+header( &quot;HTTP/1.1 301 Moved Permanently&quot; );
+header( &quot;Location: http://www.new-url.com&quot; );
+exit();</code></pre><p>… I was still getting 302 redirects when checking in Fiddler. I don’t know if it’s something specifically about the interaction between IIS7 and PHP. Maybe once IIS hands off the ISAPI request to PHP, it won’t accept a 301 as a response and so it defaults to a 302. In any case, it didn’t work, and I wasn’t happy.</p>
+<p>Enter the <a href="http://www.iis.net/expand/URLRewrite" target="_blank" rel="noopener">IIS7 Rewrite Module</a>.  It’s not a standard part of IIS so you need to download and install it separately, but it’s beyond worth it.  It enables rewriting urls for pretty, SEO-friendly urls, but it also supports redirection as well.</p>
+<p>At first I had trouble with the rewrite module.  I was dealing with raw Web.config files on my hosting provider’s site, not having direct access to the IIS controls themselves.  It was also difficult to find documentation on the configuration settings since everywhere you look pretty much assumes you’re working with the GUI tools in the IIS7  Manager, which I wasn’t. I tried many things, based on examples I found off the Internet or my own guesses and theories, and they all either didn’t work or gave me a big fat 500 error.</p>
+<p>I finally found some help from <a href="http://learn.iis.net/page.aspx/465/url-rewrite-module-configuration-reference/" target="_blank" rel="noopener">URL Rewrite Module Configuration Reference</a> on <a href="http://learn.iis.net" target="_blank" rel="noopener">learn.iis.net</a>, which I feel pretty safe elevating to the status of Must Read. After some more guess-and-check, I came up with the following configuration for redirecting a site hosted in a subdirectory to its own top-level primary domain:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- Web.config file in subdirectory to be redirected --&gt;</span><br><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">  &lt;system.webServer&gt;</span><br><span class="line">    &lt;rewrite&gt;</span><br><span class="line">      &lt;rules&gt;</span><br><span class="line">        &lt;rule name&#x3D;&quot;RedirectRule&quot; stopProcessing&#x3D;&quot;true&quot;&gt;</span><br><span class="line">          &lt;match url&#x3D;&quot;(.*)&quot; ignoreCase&#x3D;&quot;true&quot; &#x2F;&gt;</span><br><span class="line">          &lt;action type&#x3D;&quot;Redirect&quot; url&#x3D;&quot;http:&#x2F;&#x2F;www.newdomain.com&#x2F;&#123;R:1&#125;&quot; redirectType&#x3D;&quot;Permanent&quot; &#x2F;&gt;</span><br><span class="line">            &lt;conditions&gt;</span><br><span class="line">                &lt;add input&#x3D;&quot;&#123;HTTP_HOST&#125;&quot; pattern&#x3D;&quot;www\.old-domain\.com&quot; &#x2F;&gt;</span><br><span class="line">            &lt;&#x2F;conditions&gt;</span><br><span class="line">        &lt;&#x2F;rule&gt;</span><br><span class="line">      &lt;&#x2F;rules&gt;</span><br><span class="line">    &lt;&#x2F;rewrite&gt;</span><br><span class="line">  &lt;&#x2F;system.webServer&gt;</span><br><span class="line">&lt;&#x2F;configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Here are some of the things that threw me for a loop:</p>
+<ul>
+<li><strong>The match url is relative to the location of the web.config file.</strong> I’ve written a regular expression or two in my day, and I thought I was matching against the entire path. If the Web.config file is at <code>/old/app/path/web.config</code>, and you are trying to redirect <code>/old/app/path/default.aspx</code>, then the string you are matching against in this context is “default.aspx” without any sort of beginning slash. Therefore, the match url of <code>(.*)</code> matches everything in the subdirectory.</li>
+<li><strong>{R:1} looks way too similar to .NET string formatting jargon</strong>. In reality it has much more in common with regular expression replacement syntax. <code>{R:1}</code> means the first captured group within the regular expression (or wildcard matched * if that’s the way you want to go.) Likewise, <code>{R:0}</code> is the entire matched string. From what I read, <code>{C:1}</code> would be the first captured group within a condition regular expression (as opposed to the <strong>R</strong> for Match <strong>R</strong>ule, perhaps, although the letter R doesn’t occur anywhere near to the regular expression it matches. Whatever. In any case, I haven’t had the opportunity to utilize a C match yet.</li>
+<li><strong>Rule operates on the path and query; use conditions for domains.</strong> Or for anything else that isn’t the path, for that matter. In my case, I have one hosting account where I can post secondary domains (like this one) to a subdomain as its root. That means I need to filter for the old domains - it wouldn’t do to have the new domain redirect to itself. Rumor has it that infinite redirects are bad.</li>
+<li><strong>Try different things with the GUI in IIS7 Manager.</strong> While I didn’t find my exact answer, I learned a lot by trying different things and seeing how they were represented in the Web.config file.</li>
+<li><strong>Can I please get a list of condition variables?</strong> I haven’t been able to find a comprehensive list of variables that can be used between curly braces, but they correspond to server variables. In fact, any HTTP header can be used if you format it all uppercase, convert any dashes to underscores, and prefix it with “HTTP_“. More useful information, including even string functions, can be found by reading <a href="http://learn.iis.net/page.aspx/465/url-rewrite-module-configuration-reference/" target="_blank" rel="noopener">URL Rewrite Module Configuration Reference</a> at length. It’s worth it.</li>
+<li><strong>If using WordPress (or other web application that can rewrite local files), make sure the Web.config file isn’t writeable.</strong> WordPress might see that the file isn’t exactly like it thinks it should be to do its own url rewriting and try to replace it under your nose. Well, not under your nose, but you might push a button that overwrites it without thinking about it, and it will probably be months before you figure out that it even happened, much less that it destroyed your page rank.</li>
+</ul>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

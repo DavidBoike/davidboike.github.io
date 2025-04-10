@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="UPDATE: Starting in NServiceBus version 7.4 you can create a new ConversationId using sendOptions.StartNewConversation(). No more need to create a custom pipeline behavior as I explain here.
+
+The purpose of the ConversationId header included with every NServiceBus message is to relate a whole bunch of messages together as all having started from the same action. It’s generally a very bad idea to mess with the ConversationId in a message handler, so if you try, you’ll get this exception:
+
+System.Exception: Cannot set the NServiceBus.ConversationId header to ‘9203ecb1-d2ed-46eb-ae99-fbeb7a5db387’ as it cannot override the incoming header value (‘a1c91a87-2db9-493f-a638-ab9d016a1305’).
+
+But there are some times when it might be a good idea to override this id, if you know what you’re doing. This article shows you how to do that."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Overriding the NServiceBus ConversationId"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="UPDATE: Starting in NServiceBus version 7.4 you can create a new ConversationId using sendOptions.StartNewConversation(). No more need to create a custom pipeline behavior as I explain here.
+
+The purpose of the ConversationId header included with every NServiceBus message is to relate a whole bunch of messages together as all having started from the same action. It’s generally a very bad idea to mess with the ConversationId in a message handler, so if you try, you’ll get this exception:
+
+System.Exception: Cannot set the NServiceBus.ConversationId header to ‘9203ecb1-d2ed-46eb-ae99-fbeb7a5db387’ as it cannot override the incoming header value (‘a1c91a87-2db9-493f-a638-ab9d016a1305’).
+
+But there are some times when it might be a good idea to override this id, if you know what you’re doing. This article shows you how to do that."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/2020/megaphones.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/2020/megaphones.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Overriding the NServiceBus ConversationId - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/2020/megaphones.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Overriding the NServiceBus ConversationId</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            April 15, 2020
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <blockquote>
+<p><em><strong>UPDATE:</strong> Starting in NServiceBus version 7.4 you can <a href="https://docs.particular.net/nservicebus/messaging/headers#messaging-interaction-headers-nservicebus-conversationid-starting-a-new-conversation" target="_blank" rel="noopener">create a new ConversationId</a> using <code>sendOptions.StartNewConversation()</code>. No more need to create a custom pipeline behavior as I explain here.</em></p>
+</blockquote>
+<p>The purpose of the <code>ConversationId</code> header included with every NServiceBus message is to relate a whole bunch of messages together as all having started from the same action. It’s generally a very bad idea to mess with the <code>ConversationId</code> in a message handler, so if you try, you’ll get this exception:</p>
+<blockquote>
+<p>System.Exception: Cannot set the NServiceBus.ConversationId header to ‘9203ecb1-d2ed-46eb-ae99-fbeb7a5db387’ as it cannot override the incoming header value (‘a1c91a87-2db9-493f-a638-ab9d016a1305’).</p>
+</blockquote>
+<p>But there are some times when it <em>might</em> be a good idea to override this id, if you know what you’re doing. This article shows you how to do that.</p>
+<a id="more"></a>
+
+<h2 id="What-ConversationId-is-for"><a href="#What-ConversationId-is-for" class="headerlink" title="What ConversationId is for"></a>What <code>ConversationId</code> is for</h2><p>When you click in a web application (for example) a message gets sent. This is the very first message in the “conversation” so a new <code>ConversationId</code> is generated. From that point on, every message that is sent as a result of that original message (from message handlers sending or publishing still more messages) copies the same <code>ConversationId</code> from the incoming message.</p>
+<p>When these messages get successfuly processed, we can send a copy of them to an auditing store, like <a href="https://docs.particular.net/servicecontrol/" target="_blank" rel="noopener">ServiceControl</a>.</p>
+<p>Then <a href="https://docs.particular.net/serviceinsight/" target="_blank" rel="noopener">ServiceInsight</a> can query our auditing store for messages having the same <code>ConversationId</code>, and with that information build a flow diagram like this:</p>
+<p><img src="/images/2020/flow-diagram.png" alt="Flow diagram"></p>
+<p>Or, a sequence diagram like this:</p>
+<p><img src="/images/2020/sequence-diagram.png" alt="Sequence diagram"></p>
+<h2 id="The-problem"><a href="#The-problem" class="headerlink" title="The problem"></a>The problem</h2><p>The problem is when you use a never-ending saga, something like the <code>CustomerHasBecomePreferred</code> saga I wrote about in <a href="https://particular.net/blog/death-to-the-batch-job" target="_blank" rel="noopener">Death to the batch job</a>, or the <a href="/2020/04/creating-a-scheduler-with-nservicebus/">sample scheduler saga</a> I wrote in my last post. There’s never an event to say “This is the start of a new conversation, please come up with a new ID.”</p>
+<p>If you try to look at a saga like this using ServiceInsight, the diagrams would get larger and more complex the longer the saga lived, and it wouldn’t take long for the diagrams to become completely unusable.</p>
+<h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h2><p>Let’s take another look at the exception if we try to change the <code>ConversationId</code> within a message handler. This time I’ll include a couple lines from the stack trace.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">System.Exception: Cannot set the NServiceBus.ConversationId header to &#39;9203ecb1-d2ed-46eb-ae99-fbeb7a5db387&#39; as it cannot override the incoming header value (&#39;a1c91a87-2db9-493f-a638-ab9d016a1305&#39;).</span><br><span class="line">   at NServiceBus.AttachCausationHeadersBehavior.SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)</span><br><span class="line">   at NServiceBus.AttachCausationHeadersBehavior.Invoke(IOutgoingLogicalMessageContext context, Func&#96;2 next)</span><br><span class="line">   ...</span><br></pre></td></tr></table></figure>
+
+<p>I include the first couple lines of the stack trace because that’s a clue for how to get around this quandary. Specifically, the <code>AttachCausationHeadersBehavior</code> where the method takes an <code>IOutgoingLogicalMessageContext</code>.</p>
+<p>This is a <a href="https://docs.particular.net/nservicebus/pipeline/manipulate-with-behaviors" target="_blank" rel="noopener">pipeline behavior</a>, one of many built into NServiceBus that do things to messages as they’re either processed (incoming behaviors) or sent out (outgoing behaviors).</p>
+<p>In this case, <code>IOutgoingLogicalMessageContext</code> tells us that we’re operating on the part of the <em>outgoing</em> message pipeline where we have a <code>logical message</code>—in other words, we’re still dealing with a class and haven’t serialized the message to bytes to send to the message transport yet.</p>
+<p>We can operate later in the pipeline by creating our own behavior operating on the <code>IOutgoingPhysicalMessageContext</code>.</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public class ModifyConversationIdBehavior : Behavior&lt;IOutgoingPhysicalMessageContext&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">const</span> <span class="keyword">string</span> OverrideHeader = <span class="string">"Temp.OverrideConversationId"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> Task <span class="title">Invoke</span>(<span class="params">IOutgoingPhysicalMessageContext context, Func&lt;Task&gt; next</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="comment">// If a temporary override header has been set, move THAT value into the real header</span></span><br><span class="line">        <span class="keyword">if</span>(context.Headers.TryGetValue(OverrideHeader, <span class="keyword">out</span> <span class="keyword">string</span> overridingConversationId))</span><br><span class="line">        &#123;</span><br><span class="line">            context.Headers[Headers.ConversationId] = overridingConversationId;</span><br><span class="line">            context.Headers.Remove(OverrideHeader);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Execute the rest of the pipeline</span></span><br><span class="line">        <span class="keyword">return</span> next();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>We also have to register this new pipeline behavior when we configure the endpoint containing the scheduler saga:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">endpointConfiguration.Pipeline.Register(<span class="keyword">new</span> ModifyConversationIdBehavior(), <span class="string">"Modifies the ConversationId of an outgoing message if necessary."</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Now, from wherever point you want to cut the conversation into two (in my scheduler saga, it’s the point where the scheduler fires off a new execution of the task) you can do this:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> command = <span class="keyword">new</span> WhateverCommand();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> sendOptions = <span class="keyword">new</span> SendOptions();</span><br><span class="line">sendOptions.SetHeader(ModifyConversationIdBehavior.OverrideHeader, Guid.NewGuid().ToString());</span><br><span class="line"><span class="keyword">await</span> context.Send(command, sendOptions);</span><br></pre></td></tr></table></figure>
+
+<p>When intercepted by the behavior the value stored in the <code>OverrideHeader</code> will override the value copied from the previous message in the chain, effectively starting a brand new conversation.</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>Overriding <code>ConversationId</code> isn’t something to be done lightly, as you can break your auditing and message visualizations. That’s why the NServiceBus API tries to prevent you from doing it. But with a framework as extensible as NServiceBus, there’s almost always a way to break the rules, and <a href="https://docs.particular.net/nservicebus/pipeline/manipulate-with-behaviors" target="_blank" rel="noopener">pipeline behaviors</a> are a common outlet for well-meaning rule-breakers to do just about anything you can dream up.</p>
+<p>For more on useful behaviors, you might want to check out my post <a href="https://particular.net/blog/infrastructure-soup" target="_blank" rel="noopener">Infrastructure soup</a> on the Particular Software blog.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

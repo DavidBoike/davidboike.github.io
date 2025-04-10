@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="If you run an ASP.NET website with any non-trivial amount of traffic, the last thing you want to do is try to load an external resource with a web request. Even if you cache it, you’ve taken on that external source as a dependency to your system, which means that your website is only as reliable as the external source you depend on.
+The primary strategy I’ve seen to cope with this is to request the data from the remote service on the first request from the web tier, cache it locally, and then have a background process periodically refresh that cache so that subsequent requests can use locally cached data.
+Even with this background-updated cache, eventually the external resource will suffer some sort of issue. The data in the cache grows old and is invalidated, and then the web tier starts requesting the data again, except now, 100 different requests try to open 100 different connections to the remote service to get the exact same data, because either they all fail or none of them can complete quickly enough to store the cache item for the other threads to use. The Thread Pool fills up, and ASP.NET hangs its head and gives up."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Loading external resources without killing ASP.NET"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="If you run an ASP.NET website with any non-trivial amount of traffic, the last thing you want to do is try to load an external resource with a web request. Even if you cache it, you’ve taken on that external source as a dependency to your system, which means that your website is only as reliable as the external source you depend on.
+The primary strategy I’ve seen to cope with this is to request the data from the remote service on the first request from the web tier, cache it locally, and then have a background process periodically refresh that cache so that subsequent requests can use locally cached data.
+Even with this background-updated cache, eventually the external resource will suffer some sort of issue. The data in the cache grows old and is invalidated, and then the web tier starts requesting the data again, except now, 100 different requests try to open 100 different connections to the remote service to get the exact same data, because either they all fail or none of them can complete quickly enough to store the cache item for the other threads to use. The Thread Pool fills up, and ASP.NET hangs its head and gives up."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Loading external resources without killing ASP.NET - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Loading external resources without killing ASP.NET</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            March 12, 2012
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>If you run an ASP.NET website with any non-trivial amount of traffic, the last thing you want to do is try to load an external resource with a web request. Even if you cache it, you’ve taken on that external source as a dependency to your system, which means that your website is only as reliable as the external source you depend on.</p>
+<p>The primary strategy I’ve seen to cope with this is to request the data from the remote service on the first request from the web tier, cache it locally, and then have a background process periodically refresh that cache so that subsequent requests can use locally cached data.</p>
+<p>Even with this background-updated cache, eventually the external resource will suffer some sort of issue. The data in the cache grows old and is invalidated, and then the web tier starts requesting the data again, except now, 100 different requests try to open 100 different connections to the remote service to get the exact same data, because either they all fail or none of them can complete quickly enough to store the cache item for the other threads to use. The Thread Pool fills up, and ASP.NET hangs its head and gives up.</p>
+<a id="more"></a>
+
+<h2 id="The-Solution"><a href="#The-Solution" class="headerlink" title="The Solution"></a>The Solution</h2><p>Let’s assume that we are talking about a current weather tease that is a small part of a very large page, and that all our current weather information for the end-user’s zip code comes to us from an external provider.</p>
+<p>So how do we avoid this mess? We can do it quite handily with a little <a href="http://www.nservicebus.com" target="_blank" rel="noopener">NServiceBus</a> and <a href="http://jquery.com/" target="_blank" rel="noopener">jQuery</a>.</p>
+<p>Do not even try to access the data during the standard page load. Instead, ship markup to the client that displays either an empty div or perhaps an AJAX loading spinner. Generate one <a href="http://ajaxload.info/" target="_blank" rel="noopener">here</a>, <a href="http://cssload.net/" target="_blank" rel="noopener">here</a>, <a href="http://loadinfo.net/" target="_blank" rel="noopener">here</a>, or a variety of other places if, like me, you just don’t do graphics.</p>
+<p>Use jQuery to request the weather data from a web service on your own server, to be returned as JSON. This request should only look for locally cached data sources. If none are found, it should return a JSON response that says “Sorry, I don’t have anything for you now. Please try back later.” At the same time, the web page will use NServiceBus to send a DownloadRemoteWeatherDataCmd to a background service.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public ActionResult GetCurrentConditions(string zip)</span><br><span class="line">&#123;</span><br><span class="line">    var conditions &#x3D; CurrentConditions.GetFromLocalSourcesOnly(zip);</span><br><span class="line">    if (conditions &#x3D;&#x3D; null)</span><br><span class="line">    &#123;</span><br><span class="line">        &#x2F;&#x2F; Really we should wrap conditions with a container that we</span><br><span class="line">        &#x2F;&#x2F; keep in cache, even if the value is null, where we can</span><br><span class="line">        &#x2F;&#x2F; keep track of how often we send this command, so that we</span><br><span class="line">        &#x2F;&#x2F; don&#39;t flood our back-end service with requests.</span><br><span class="line">        Bus.Send(new DownloadRemoteWeatherDataCmd &#123; ZipCode &#x3D; zip &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    return Json(new &#123;</span><br><span class="line">        hasData &#x3D; conditions !&#x3D; null,</span><br><span class="line">        conditions &#x3D; conditions</span><br><span class="line">    &#125;, JsonRequestBehavior.AllowGet);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>While your client side has set a timeout to request the data again after a few seconds, the background process has received the DownloadRemoteWeatherDataCmd. Using a <a href="http://www.nservicebus.com/Sagas.aspx" target="_blank" rel="noopener">Saga</a>, the endpoint manages duplicate requests (from multiple servers in the same server farm, for example) and makes sure that for each unique data request, only one request to the external resource is being made.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class CurrentWeatherSagaData : ISagaEntity</span><br><span class="line">&#123;</span><br><span class="line">    public string ZipCode &#123; get; set; &#125;</span><br><span class="line">    public DateTime DoNotDownloadAgainUntil &#123; get; set; &#125;</span><br><span class="line">    &#x2F;&#x2F; Required for NServiceBus Sagas - don&#39;t touch!</span><br><span class="line">    public Guid Id &#123; get; set; &#125;</span><br><span class="line">    public string OriginalMessageId &#123; get; set; &#125;</span><br><span class="line">    public string Originator &#123; get; set; &#125;</span><br><span class="line">&#125;</span><br><span class="line">public class RemoteDataAccessSaga : Saga&amp;amp;lt;CurrentWeatherSagaData&amp;amp;gt;,</span><br><span class="line">    IAmStartedByMessages&amp;amp;lt;DownloadRemoteWeatherDataCmd&amp;amp;gt;</span><br><span class="line">&#123;</span><br><span class="line">    public override void ConfigureHowToFindSaga()</span><br><span class="line">    &#123;</span><br><span class="line">        this.ConfigureMapping&amp;amp;lt;DownloadRemoteWeatherDataCmd&amp;amp;gt;(</span><br><span class="line">            data &#x3D;&amp;amp;gt; data.ZipCode,</span><br><span class="line">            cmd &#x3D;&amp;amp;gt; cmd.ZipCode);</span><br><span class="line">    &#125;</span><br><span class="line">    public void Handle(DownloadRemoteWeatherDataCmd cmd)</span><br><span class="line">    &#123;</span><br><span class="line">        this.Data.ZipCode &#x3D; cmd.ZipCode;</span><br><span class="line">        if (DateTime.UtcNow &amp;amp;gt; this.Data.DoNotDownloadAgainUntil)</span><br><span class="line">        &#123;</span><br><span class="line">            Bus.Send(new RateLimitedDownloadRemoteWeatherDataCmd &#123;</span><br><span class="line">                ZipCode &#x3D; cmd.ZipCode</span><br><span class="line">            &#125;);</span><br><span class="line">            Data.DoNotDownloadAgainUntil &#x3D; DateTime.UtcNow.AddMinutes(10);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>When the external request completes, the background endpoint stores the data locally (probably in a database) and publishes an INewWeatherDataAvailable.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class DataDownloader : IHandleMessages&amp;amp;lt;RateLimitedDownloadRemoteWeatherDataCmd&amp;amp;gt;</span><br><span class="line">&#123;</span><br><span class="line">    public IBus Bus &#123; get; set; &#125;</span><br><span class="line">    public void Handle(RateLimitedDownloadRemoteWeatherDataCmd cmd)</span><br><span class="line">    &#123;</span><br><span class="line">        &#x2F;&#x2F; Download the data from the weather provider</span><br><span class="line">        &#x2F;&#x2F; Then, insert it into the local database</span><br><span class="line">        &#x2F;&#x2F; Then, announce it to everyone who cares</span><br><span class="line">        Bus.Publish&amp;amp;lt;INewWeatherDataAvailable&amp;amp;gt;(e &#x3D;&amp;amp;gt; &#123; e.ZipCode &#x3D; cmd.ZipCode; &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The web tier subscribes to INewWeatherDataAvailable, and drops any cache items it might be holding. The next time the client side hits the web service, it will go back to the database and deliver the newly arrived data.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class CurrentConditionsCacheManager : IHandleMessages&amp;amp;lt;INewWeatherDataAvailable&amp;amp;gt;</span><br><span class="line">&#123;</span><br><span class="line">    public void Handle(INewWeatherDataAvailable evt)</span><br><span class="line">    &#123;</span><br><span class="line">        string zipCode &#x3D; evt.ZipCode;</span><br><span class="line">        &#x2F;&#x2F; Now, drop any cache items related to this zip code</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>In the event of a downtime on the remote resource, compensating actions can be taken on the client side, depending upon business requirements. For example, the spinner could continue to spin indefinitely, or perhaps after 30 seconds, the spinner could be replaced by an apology message that the data couldn’t be loaded right now. As disappointing as that might be, it’s certainly better than an unresponsive web server or Error 503 Server Not Available.</p>
+<h2 id="Extra-Credit"><a href="#Extra-Credit" class="headerlink" title="Extra Credit"></a>Extra Credit</h2><p>This is a solid approach, but there are other things we can do to make it even better.</p>
+<h3 id="Server-Client-Templating"><a href="#Server-Client-Templating" class="headerlink" title="Server/Client Templating"></a>Server/Client Templating</h3><p>A valid criticism of this approach is that any content delivered via JSON cannot be indexed by search engines. In order to get around this, you can use a templating language that works on the server and the client.  <a href="http://mustache.github.com/" target="_blank" rel="noopener">Mustache</a>is just such a language, and is available for <a href="https://github.com/janl/mustache.js" target="_blank" rel="noopener">JavaScript</a> as well as <a href="https://github.com/jdiamond/Nustache" target="_blank" rel="noopener">.NET</a>.</p>
+<p>On the server side, if data is available, render the data to HTML so that Google can index it. If it is not, fall back on the AJAX loader image and include the template so that it can be populated the exact same way on the client.</p>
+<h3 id="Async-Signaling"><a href="#Async-Signaling" class="headerlink" title="Async Signaling"></a>Async Signaling</h3><p>Once the INewWeatherDataAvailable arrives at the web server, why wait for the client to check back for the update when we can push the data straight to the client? SignalR provides us with the ability to push data directly from the server to the client when it arrives.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

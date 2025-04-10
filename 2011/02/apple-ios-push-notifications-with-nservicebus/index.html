@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="I’m no big fan of Apple’s Push Notifications API, but the fact is that iOS applications are no passing fad.  As developers providing server-side resources to mobile applications, our job is to do so as efficiently as possible.
+For .NET developers able to commit financial resources, third party solutions such as Urban Airship can be the answer.  For developers wishing to control their own destiny, the open-source apns-sharp provides Apple push notifications and feedback services in a C# library.
+Considering the ridiculous complexity of the Apple Push Notification format, it would behoove any developer to use apns-sharp instead of trying to re-invent the wheel.  NServiceBus together with apns-sharp would offer the reliability and scalability needed to successfully send push notifications for a high-capacity enterprise system.
+Unfortunately, until recently apns-sharp and NServiceBus didn’t work and play well together.  I contributed to the apns-sharp to address these shortcomings.  In this article, I will describe how to use these modifications to apns-sharp to send push notifications with NServiceBus."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Apple iOS Push Notifications with NServiceBus"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="I’m no big fan of Apple’s Push Notifications API, but the fact is that iOS applications are no passing fad.  As developers providing server-side resources to mobile applications, our job is to do so as efficiently as possible.
+For .NET developers able to commit financial resources, third party solutions such as Urban Airship can be the answer.  For developers wishing to control their own destiny, the open-source apns-sharp provides Apple push notifications and feedback services in a C# library.
+Considering the ridiculous complexity of the Apple Push Notification format, it would behoove any developer to use apns-sharp instead of trying to re-invent the wheel.  NServiceBus together with apns-sharp would offer the reliability and scalability needed to successfully send push notifications for a high-capacity enterprise system.
+Unfortunately, until recently apns-sharp and NServiceBus didn’t work and play well together.  I contributed to the apns-sharp to address these shortcomings.  In this article, I will describe how to use these modifications to apns-sharp to send push notifications with NServiceBus."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Apple iOS Push Notifications with NServiceBus - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Apple iOS Push Notifications with NServiceBus</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            February 8, 2011
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>I’m <a href="/2010/10/hey-apple-your-push-notifications-api-sucks/">no big fan of Apple’s Push Notifications API</a>, but the fact is that iOS applications are no passing fad.  As developers providing server-side resources to mobile applications, our job is to do so as efficiently as possible.</p>
+<p>For .NET developers able to commit financial resources, third party solutions such as Urban Airship can be the answer.  For developers wishing to control their own destiny, the open-source <a href="http://code.google.com/p/apns-sharp/" target="_blank" rel="noopener">apns-sharp</a> provides Apple push notifications and feedback services in a C# library.</p>
+<p>Considering the <a href="/2010/10/hey-apple-your-push-notifications-api-sucks/">ridiculous complexity of the Apple Push Notification format</a>, it would behoove any developer to use apns-sharp instead of trying to re-invent the wheel.  NServiceBus together with apns-sharp would offer the reliability and scalability needed to successfully send push notifications for a high-capacity enterprise system.</p>
+<p>Unfortunately, until recently apns-sharp and NServiceBus didn’t work and play well together.  I contributed to the apns-sharp to address these shortcomings.  In this article, I will describe how to use these modifications to apns-sharp to send push notifications with NServiceBus.</p>
+<a id="more"></a>
+
+<h2 id="Getting-the-apns-sharp-library"><a href="#Getting-the-apns-sharp-library" class="headerlink" title="Getting the apns-sharp library"></a>Getting the apns-sharp library</h2><p> My changes to apns-sharp (Version 1.0.4) are not yet available in a binary download, so you’ll need to download and build the source.  apns-sharp is hosted in Google Code as a Subversion project.</p>
+<p>You can check out the source from the <a href="http://apns-sharp.googlecode.com/svn/trunk/" target="_blank" rel="noopener">read-only Subversion repository</a>.  For more details, visit the <a href="http://code.google.com/p/apns-sharp/source/checkout" target="_blank" rel="noopener">Google Code Source Checkout</a> page for the project.</p>
+<p><strong>Note: This article is now out of date, as apns-sharp has now become <a href="https://github.com/Redth/PushSharp" target="_blank" rel="noopener">PushSharp</a>.</strong></p>
+<p>Open <a href="http://apns-sharp.googlecode.com/svn/trunk/JdSoft.Apple.Apns.sln" target="_blank" rel="noopener">JdSoft.Apple.Apns.sln</a> in Visual Studio 2010 (the free C# Express version works just fine) and build it. The projects in the solution are:</p>
+<ul>
+<li><strong>JdSoft.Apple.Apns.Notifications</strong> – provides the central functionality of sending push notifications.</li>
+<li><strong>JdSoft.Apple.Apns.Feedback</strong> – provides the feedback service that you must run in order to remove subscribers that have uninstalled your application from their device.  Failure to do so could result in retribution from Apple in the form of cutting you off.</li>
+<li><strong>JdSoft.Apple.AppStore</strong> – provides receipt verification for in-app purchases.  I have not used this functionality myself.</li>
+</ul>
+<h2 id="Sending-Push-Notifications"><a href="#Sending-Push-Notifications" class="headerlink" title="Sending Push Notifications"></a>Sending Push Notifications</h2><p> The central trouble with push notifications and NServiceBus is that sending a push notification is completely non-transactional.  There is no way to rollback sending a push notification.</p>
+<p>When performing non-transactional activities (other examples would include file system actions or calling web services) the usual guidance is to isolate the activity in its own NServiceBus message handler, and make the activity idempotent, meaning you can retry it over and over until you succeed with no ill effects.</p>
+<p>Normally that would mean you would send push notifications one at a time, except you can’t do that either.  The SSL connection to Apple’s servers is computationally expensive to set up.  Even if it wasn’t, Apple’s own documentation hints that pinging Apple’s servers to death in such a way could get you cut off as well.</p>
+<p>The best compromise is to create batches of messages and interact with Apple’s servers in such a way that successfully sent messages are not retried (to prevent duplicate messages being sent) and still ensuring that those that fail can be retried.</p>
+<p>Here is the most basic message to send to a push notifications service:</p>
+<pre><code>public class SendIOSAlertBatchCmd : IMessage
+{
+    public SendIOSAlertBatchCmd()
+    {
+        Recipients = new List();
+    }
+    public string Text { get; set; }
+    public DateTime? Expires { get; set; }
+    public List Recipients { get; set; }
+}</code></pre><p>The List of recipients contains the push identifiers that Apple provides to the device, which in turn the device sends to you via a web service of some sort.  Note that this is different from the device’s unique device ID!</p>
+<p>Here is very basic source code to handle this message:</p>
+<pre><code>public void Handle(SendIOSAlertBatchCmd msg)
+{
+    List notifications = new List(msg.Recipients.Count);
+    foreach (string pushID in msg.Recipients)
+    {
+        Notification n = new Notification(pushID);
+        n.Payload.Alert.Body = msg.Text;
+        n.Payload.Sound = &quot;default&quot;;
+        n.Expiration = msg.Expires;
+        notifications.Add(n);
+    }
+    try
+    {
+        bool useSandbox = false;
+        // The p12 file can also be loaded from a byte array, in case you keep it in a database.
+        string p12FilePath = &quot;push-notifications.p12&quot;;
+        string p12FilePassword = &quot;password&quot;;
+        using (NotificationChannel channel = new NotificationChannel(useSandbox, p12FilePath, p12FilePassword))
+        {
+            channel.SendNotifications(notifications.ToArray());
+        }
+    }
+    catch (NotificationBatchException bx)
+    {
+        foreach (NotificationDeliveryError err in bx.DeliveryErrors)
+        {
+            Notification erroredNotification = err.Notification;
+            // Take action here to deal with error
+        }
+    }
+}</code></pre><p>The NotificationBatchException is a rollup exception that encapsulates any error that may have occurred in sending push notifications.  The NotificationChannel.SendNotifications(Notification[]) will attempt to send every message in the array, reconnecting if necessary if Apple drops the connection in the middle.  Therefore, you can safely assume that any Notification that doesn’t surface in a NotificationBatchException was successfully sent.</p>
+<p>This is a very basic framework – you have several options for how to deal with failures.</p>
+<ol>
+<li><p>Ignore them.  Most of the possible exceptions are problems that just shouldn’t happen the strongly-typed arena of .NET.  APNS uses a binary interface, so if you were doing it by hand, there’s all sorts of things that could go wrong, but the apns-sharp library insulates you from all that.  If your push notifications aren’t really all that important, this may be the easiest option.</p>
+</li>
+<li><p>Send (or publish) a new message for each failed Notification.  The main goal is to assume the best and send a fair number of notifications in a batch.  If just one or two fail, it would be acceptable to deal with these in a separate handler one at a time.</p>
+</li>
+<li><p>If you want to log in a database that each message was sent, you can change Recipients from a List to a List which includes a database primary key and the push ID.</p>
+<ul>
+<li>The Notification class provides a Tag property for storing user state, which you can use to store the IOSRecipient.  Then you can access the Tag property again, via the Notification, when handling any NotificationBatchException that may occur.</li>
+<li>This would enable you to publish one event message containing details of the successful pushes, and one or more messages for each failure, each to be taken care of in separate handlers.</li>
+</ul>
+<p>The important thing is that you can send many messages at once (batches of 100-500 work quite well) and isolate this work within one message handler, sending or publishing messages to separately deal with the messages that succeed and the messages that fail.</p>
+</li>
+</ol>
+<h2 id="Generating-the-p12-Certificate-File"><a href="#Generating-the-p12-Certificate-File" class="headerlink" title="Generating the .p12 Certificate File"></a>Generating the .p12 Certificate File</h2><p> There is a lot of conflicting and just plain confusing information out on the Web about how to generate the .p12 file you need to use to authenticate to Apple. Here is the process that works for apns-sharp, along with a bit of commentary so you can actually understand what’s going on.</p>
+<ol>
+<li><p>Generate a Certificate Signing Request file using the Mac keychain, as described in Apple’s official documentation. The email address really doesn’t seem to matter (just use the one you use for your iOS developer account) but the Common Name does - if you have many push notification certificates in your Keychain this will be the only thing that will help you tell them apart!</p>
+<ul>
+<li>What is not so obvious is that when the CSR file is generated, the CSR really only contains the public key part of the public/private key pair. The private key is kept in the Keychain. Switch to the Keys category and you will see it with the name you selected.</li>
+</ul>
+</li>
+<li><p>Upload the CSR file to the Apple Developer Portal, and Apple will generate a certificate (.cer file) for you to download.</p>
+</li>
+<li><p>Add this file to your Keychain (the login / default one) by dragging and dropping.</p>
+<ul>
+<li>At this point, the certificate (which embodies the public key, and the private key (already in the Keychain) recognize each other and meet up. If you look at the Certificates view, you will see the push notifications certificate, which you can expand to see the backing private key.</li>
+<li>The certificate has an awful name based on Apple-assigned IDs that mean nothing at face value - so you must expand it and look at the private key name in order to tell them apart.</li>
+</ul>
+</li>
+<li><p>Here’s where many run afoul of the Keychain. You must select the certificate, right-click (or control-click) and export it. <strong>The important part for apns-sharp is to select the certificate and only the certificate. <em>Do not also select the private key</em>.</strong></p>
+</li>
+<li><p>Select a filename to save the .p12 file. Then you must select a password to encrypt the .p12 file. After that you will likely need to enter your Keychain password to authorize exporting the private key (which needs to be kept secret, after all) out of the Keychain.</p>
+</li>
+<li><p>The .p12 file that results, along with the password you selected, will work for the constructor of the NotificationChannel. Or, you can take the bytes of this file and load it into a database and use the constructor overload that takes a byte array.</p>
+<p>It really bothers me how much contradictory information is out there. I think some of it might have something to do with other APNS libraries such as <a href="http://code.google.com/p/php-apns/" target="_blank" rel="noopener">php-apns</a> have similar, but not compatible methods of reading the certificate information. So, I only guarantee this method to be suitable for use with apns-sharp.</p>
+</li>
+</ol>
+<p>If there is any way I can make this procedure more clear, please let me know.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p> With the apns-sharp library and NServiceBus you can send many push notifications at once (batches of 100-500 work quite well) and isolate the work within one NServiceBus message handler, sending or publishing messages to separately deal with messages that succeed and messages that fail.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

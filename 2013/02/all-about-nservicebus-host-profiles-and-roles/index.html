@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="The NServiceBus Host process is a pretty amazing piece of software that hosts your message handlers, can be run from the command line or installed as a Windows service, and is supremely extensible. This is a great strength for NServiceBus but it can also be a little overwhelming for the developer just starting to wade into the great pool of service bus logistics.
+Much of how an endpoint will configure itself is based on Profiles and Roles:
+
+Profile – controls the environment and features the endpoint is supposed to run with. These are set at the command line by passing the class name (or names) of the desired profile (or profiles) like “NServiceBus.Host.exe NServiceBus.Integration”. Because this is set at run-time, this allows the same collection of code to run in different configurations depending on environment.
+
+Role – controls what services the endpoint will need based on how it will interact with other services. There are 3 defined roles: AsA_Client, AsA_Server, and AsA_Publisher, and these are set in code, so these are static for an endpoint.
+In this blog post I will try to spell out everything that these profiles and roles do, based on my experience and source code snooping with Reflector. Use this as a quick reference so you don’t have to go hunting through reflected source yourself."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="All About NServiceBus Host Profiles and Roles"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="The NServiceBus Host process is a pretty amazing piece of software that hosts your message handlers, can be run from the command line or installed as a Windows service, and is supremely extensible. This is a great strength for NServiceBus but it can also be a little overwhelming for the developer just starting to wade into the great pool of service bus logistics.
+Much of how an endpoint will configure itself is based on Profiles and Roles:
+
+Profile – controls the environment and features the endpoint is supposed to run with. These are set at the command line by passing the class name (or names) of the desired profile (or profiles) like “NServiceBus.Host.exe NServiceBus.Integration”. Because this is set at run-time, this allows the same collection of code to run in different configurations depending on environment.
+
+Role – controls what services the endpoint will need based on how it will interact with other services. There are 3 defined roles: AsA_Client, AsA_Server, and AsA_Publisher, and these are set in code, so these are static for an endpoint.
+In this blog post I will try to spell out everything that these profiles and roles do, based on my experience and source code snooping with Reflector. Use this as a quick reference so you don’t have to go hunting through reflected source yourself."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>All About NServiceBus Host Profiles and Roles - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>All About NServiceBus Host Profiles and Roles</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            February 8, 2013
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>The NServiceBus Host process is a pretty amazing piece of software that hosts your message handlers, can be run from the command line or installed as a Windows service, and is supremely extensible. This is a great strength for NServiceBus but it can also be a little overwhelming for the developer just starting to wade into the great pool of service bus logistics.</p>
+<p>Much of how an endpoint will configure itself is based on Profiles and Roles:</p>
+<ul>
+<li><p><strong>Profile</strong> – controls the environment and features the endpoint is supposed to run with. These are set at the command line by passing the class name (or names) of the desired profile (or profiles) like “NServiceBus.Host.exe NServiceBus.Integration”. Because this is set at run-time, this allows the same collection of code to run in different configurations depending on environment.</p>
+</li>
+<li><p><strong>Role</strong> – controls what services the endpoint will need based on how it will interact with other services. There are 3 defined roles: AsA_Client, AsA_Server, and AsA_Publisher, and these are set in code, so these are static for an endpoint.</p>
+<p>In this blog post I will try to spell out everything that these profiles and roles do, based on my experience and source code snooping with <a href="http://www.red-gate.com/products/dotnet-development/reflector/" target="_blank" rel="noopener">Reflector</a>. Use this as a quick reference so you don’t have to go hunting through reflected source yourself.</p>
+<a id="more"></a>
+
+</li>
+</ul>
+<p>Note that all of this information is based on NServiceBus 3.3.4. I’m positive that things will change as new versions are released.</p>
+<h2 id="Environment-Profiles"><a href="#Environment-Profiles" class="headerlink" title="Environment Profiles"></a>Environment Profiles</h2><p> There are 3 environment profiles which help you manage changes through the development lifecycle.</p>
+<h3 id="NServiceBus-Lite"><a href="#NServiceBus-Lite" class="headerlink" title="NServiceBus.Lite"></a>NServiceBus.Lite</h3><p> The Lite profile should be used during development, because it makes everything easy to set up and tear down quickly. Logging happens to the console so you can see it, and all storage is handled in memory so there is nothing to have to set up.</p>
+<p>When an endpoint runs under the Lite profile, it will:</p>
+<ul>
+<li>Register the in-memory timeout manager.</li>
+<li>Register as a master node with in-memory gateway persistence.</li>
+<li>Register the in-memory saga persister, if a saga persister isn’t already registered.</li>
+<li>Register the in-memory fault manager, if one isn’t already registered.</li>
+<li>If the endpoint implements AsA_Publisher and subscription storage isn’t already registered, register in-memory subscription storage.</li>
+<li>Set the installation runtime to run installers but not install infrastructure.</li>
+<li>Set up logging to the console with a default threshold of INFO.</li>
+</ul>
+<h3 id="NServiceBus-Integration"><a href="#NServiceBus-Integration" class="headerlink" title="NServiceBus.Integration"></a>NServiceBus.Integration</h3><p> The Integration profile is a good candidate for Test/QA/Integration environments. By default it moves to durable persistence mechanisms (RavenDB by default) so that you can install new code without losing the current system state.</p>
+<p>When an endpoint runs under the Integration profile, it will:</p>
+<ul>
+<li><p>Configure RavenDB for persistence.</p>
+</li>
+<li><p>Configure the default error handling mechanism if no other Fault Manager is registered.</p>
+</li>
+<li><p>Configure RavenDB for saga persistence if a saga persister isn’t already registered.</p>
+</li>
+<li><p>If the endpoint implements AsA_Publisher and no subscription storage is already registered, then:</p>
+<ul>
+<li>If the Master, Worker, or Distributor profile is also activated, then RavenDB subscription storage is registered.</li>
+<li>Otherwise, MSMQ subscription storage is registered.</li>
+</ul>
+</li>
+<li><p>Set the installation runtime to run installers but not install infrastructure</p>
+</li>
+<li><p>Set up logging to the console with a default threshold of INFO.</p>
+</li>
+</ul>
+<h3 id="NServiceBus-Production"><a href="#NServiceBus-Production" class="headerlink" title="NServiceBus.Production"></a>NServiceBus.Production</h3><p> The Production profile is for installing to (wait for it) production environments. All storage is durable (RavenDB by default) and performance counters are also enabled.</p>
+<p>As NServiceBus aims to be “production ready by default”, if you do not specify a profile on the command line, the Production profile will be assumed.</p>
+<p>When an endpoint runs under the Production profile, it will:</p>
+<ul>
+<li>Configure RavenDB for persistence.</li>
+<li>Configure RavenDB for saga persistence if a saga persister isn’t already registered.</li>
+<li>Configure the default error handling mechanism if no other Fault Manager is registered.</li>
+<li>If the endpoint implements AsA_Publisher and no subscription storage is registered, register RavenDB for subscription storage.</li>
+<li>Because the Production profile class inherits from PerformanceCounters, performance counters will (by association) be enabled.</li>
+<li>Set up logging to files via the RollingFileAppender.</li>
+<li>If the console exists (not running as a background service) then also set up console logging.</li>
+</ul>
+<h2 id="Feature-Profiles"><a href="#Feature-Profiles" class="headerlink" title="Feature Profiles"></a>Feature Profiles</h2><p> Feature profiles are different form environment profiles in that their scope is a lot more limited. This enables you to take the same set of code and deploy it in multiple locations differently. For example, you create one service, but then to scale it out you deploy one instance as a Master Node, and other instances as Worker nodes that feed off that master.</p>
+<p>Here are the things that the different feature profiles will do when activated:</p>
+<h3 id="NServiceBus-Distributor"><a href="#NServiceBus-Distributor" class="headerlink" title="NServiceBus.Distributor"></a>NServiceBus.Distributor</h3><ul>
+<li>If the Worker profile is also activated, throws an exception. The Distributor and Worker profile cannot coexist.</li>
+<li>Configures the endpoint as a master node that runs the distributor with no worker on its own endpoint.</li>
+</ul>
+<h3 id="NServiceBus-Master"><a href="#NServiceBus-Master" class="headerlink" title="NServiceBus.Master"></a>NServiceBus.Master</h3><ul>
+<li>If the Worker profile is also activated, throws an exception. The Master and Worker profile cannot coexist.</li>
+<li>Configures the endpoint as a master node.</li>
+<li>Runs the distributor.</li>
+<li>Runs the gateway.</li>
+<li>Runs the timeout manager.</li>
+</ul>
+<h3 id="NServiceBus-MultiSite"><a href="#NServiceBus-MultiSite" class="headerlink" title="NServiceBus.MultiSite"></a>NServiceBus.MultiSite</h3><ul>
+<li>Runs the Gateway component.</li>
+</ul>
+<h3 id="NServiceBus-PerformanceCounters"><a href="#NServiceBus-PerformanceCounters" class="headerlink" title="NServiceBus.PerformanceCounters"></a>NServiceBus.PerformanceCounters</h3><ul>
+<li>Enables performance counters.</li>
+</ul>
+<h3 id="NServiceBus-Time"><a href="#NServiceBus-Time" class="headerlink" title="NServiceBus.Time"></a>NServiceBus.Time</h3><ul>
+<li>Logs a warning that the Timeout profile is obsolete, as Timeout Manager is on by default for Server and Publisher roles.</li>
+<li>Yes really, all it does is log a warning.</li>
+</ul>
+<h3 id="NServiceBus-Worker"><a href="#NServiceBus-Worker" class="headerlink" title="NServiceBus.Worker"></a>NServiceBus.Worker</h3><ul>
+<li>Throws an exception if either Master or Distributor profiles are also enabled, as Worker cannot coexist with these.</li>
+<li>Validates the master node configuration and enlists with the distributor on that master node.</li>
+</ul>
+<h2 id="Roles"><a href="#Roles" class="headerlink" title="Roles"></a>Roles</h2><p> Roles define what type of endpoint this is. Is it send-only client? Does it handle messages? Does it process Sagas? Does it publish events? These are the questions answered by a Role.</p>
+<p>To use a Role, you implement the marker interface on the IConfigureThisEndpoint like so:</p>
+<p>Here is a rundown of what happens by default for each Role.</p>
+<h3 id="AsA-Client"><a href="#AsA-Client" class="headerlink" title="AsA_Client"></a>AsA_Client</h3><ul>
+<li>Configures the MSMQ transport.</li>
+<li>Defaults transport settings to:<ul>
+<li>PurgeOnStartup = true</li>
+<li>IsTransactional = false</li>
+<li>ImpersonateSender = false</li>
+</ul>
+</li>
+</ul>
+<h3 id="AsA-Server"><a href="#AsA-Server" class="headerlink" title="AsA_Server"></a>AsA_Server</h3><ul>
+<li>Configures the MSMQ transport</li>
+<li>Configures for handling Sagas</li>
+<li>Configures the TimeoutManager</li>
+<li>Defaults transport settings to:<ul>
+<li>PurgeOnStartup = false</li>
+<li>IsTransactional = true</li>
+<li>Impersonate Sender = true</li>
+</ul>
+</li>
+</ul>
+<h3 id="AsA-Publisher"><a href="#AsA-Publisher" class="headerlink" title="AsA_Publisher"></a>AsA_Publisher</h3><ul>
+<li>Inherits from AsA_Server, so does everything that does</li>
+<li>As seen in the Environment Profiles section above, this is used as a marker to show that subscription storage needs to be configured.</li>
+</ul>
+<h2 id="Modifying-or-Adding-Behavior"><a href="#Modifying-or-Adding-Behavior" class="headerlink" title="Modifying or Adding Behavior"></a>Modifying or Adding Behavior</h2><p> All of the above is only what happens by default. It is fairly simple to add to or override these behaviors by creating new profiles or adding behavior to existing ones.</p>
+<h4 id="To-create-a-new-profile"><a href="#To-create-a-new-profile" class="headerlink" title="To create a new profile"></a>To create a new profile</h4><ul>
+<li>Create a class that implements NServiceBus.IProfile.</li>
+<li>There is no implementation, it’s just a marker interface.</li>
+<li>To invoke, add the full class name (YourNamespace.YourProfileName) to the command line when launching the endpoint or installing as a service.</li>
+</ul>
+<h4 id="To-invoke-functionality-on-a-profile-either-a-built-in-profile-or-your-own"><a href="#To-invoke-functionality-on-a-profile-either-a-built-in-profile-or-your-own" class="headerlink" title="To invoke functionality on a profile, either a built-in profile or your own"></a>To invoke functionality on a profile, either a built-in profile or your own</h4><ul>
+<li>Create a class that implements NServiceBus.Hosting.Profiles.IHandleProfile, where T : IProfile</li>
+<li>Implement the ProfileActivated() method.</li>
+<li>Access the NServiceBus config object using NServiceBus.Configure.Instance.</li>
+<li>If you want access to the IConfigureThisEndpoint class, add a public property to be injected</li>
+</ul>
+<h4 id="To-configure-logging-for-a-profile"><a href="#To-configure-logging-for-a-profile" class="headerlink" title="To configure logging for a profile"></a>To configure logging for a profile</h4><ul>
+<li><p>This really only makes sense with the environment profiles</p>
+</li>
+<li><p>Create a class that implements NServiceBus.IConfigureLoggingForProfile where T : IProfile</p>
+</li>
+<li><p>Implement the Configure(IConfigureThisEndpoint specifier) method.</p>
+</li>
+<li><p>Configuration of logging is separate from everything else in IHandleProfile because logging must be set up <em>much</em> earlier in the endpoint’s life cycle.</p>
+<p>It’s possible to do the same with Roles, however I can’t seem to think of a good use case for this, so I won’t bother explaining the technical details except to say it’s very similar to profiles, except with IRole and IConfgiureRole instead of IProfile and IHandleProfile. Feel free to disagree with me – if you can give me a use case I can get behind, I’ll add to this post. Until then, enjoy!</p>
+</li>
+</ul>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

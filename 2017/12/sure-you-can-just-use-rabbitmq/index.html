@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="Note: This post was adapted from an answer I originally posted to a Stack Overflow question.
+People ask (frequently) why they need NServiceBus. “I’ve got RabbitMQ and that has built-in Pub/Sub,” they might say. “Isn’t NServiceBus just a wrapper around RabbitMQ? I could probably write that in less than a weekend. After all, how hard could it be?
+Well sure, you can definitely just use pure RabbitMQ. I’ll even help you get started writing that wrapper. You just have to keep a couple things in mind."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Sure, you can just use RabbitMQ"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="Note: This post was adapted from an answer I originally posted to a Stack Overflow question.
+People ask (frequently) why they need NServiceBus. “I’ve got RabbitMQ and that has built-in Pub/Sub,” they might say. “Isn’t NServiceBus just a wrapper around RabbitMQ? I could probably write that in less than a weekend. After all, how hard could it be?
+Well sure, you can definitely just use pure RabbitMQ. I’ll even help you get started writing that wrapper. You just have to keep a couple things in mind."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/2017/rabbit-hawk.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/2017/rabbit-hawk.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Sure, you can just use RabbitMQ - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/2017/rabbit-hawk.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Sure, you can just use RabbitMQ</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            December 13, 2017
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p><i>Note: This post was adapted from an <a rel="canonical noopener" href="https://stackoverflow.com/questions/47060893/what-are-advantages-of-using-nservicebus-rabbitmq-against-pure-rabbitmq" target="_blank">answer I originally posted to a Stack Overflow question</a>.</i></p>
+<p>People ask (frequently) why they need NServiceBus. “I’ve got RabbitMQ and that has built-in Pub/Sub,” they might say. “Isn’t NServiceBus just a wrapper around RabbitMQ? I could probably write that in less than a weekend. After all, <em>how hard could it be?</em></p>
+<p>Well sure, you can definitely just use pure RabbitMQ. I’ll even help you get started writing that wrapper. You just have to keep a couple things in mind.</p>
+<a id="more"></a>
+
+<p>First you should read <a href="https://www.amazon.com/dp/0321200683/" target="_blank" rel="noopener">Enterprise Integration Patterns</a> cover to cover and make sure you understand it well. It is 736 pages, and a bit dry, but extremely useful information. It also wouldn’t hurt to become an expert in all the peculiarities of RabbitMQ.</p>
+<h2 id="Messaging"><a href="#Messaging" class="headerlink" title="Messaging"></a>Messaging</h2><p>Then you just have to decide how you’ll <a href="https://docs.particular.net/nservicebus/messaging/messages-events-commands" target="_blank" rel="noopener">define messages</a>, how to <a href="https://docs.particular.net/nservicebus/handlers/" target="_blank" rel="noopener">define message handlers</a>, how to <a href="https://docs.particular.net/nservicebus/messaging/send-a-message" target="_blank" rel="noopener">send messages</a> and <a href="https://docs.particular.net/nservicebus/messaging/publish-subscribe/" target="_blank" rel="noopener">publish events</a>. Before you get too far you’ll want a good <a href="https://docs.particular.net/nservicebus/logging/" target="_blank" rel="noopener">logging infrastructure</a>. You’ll need to create a <a href="https://docs.particular.net/nservicebus/serialization/" target="_blank" rel="noopener">message serializer</a> and infrastructure for <a href="https://docs.particular.net/nservicebus/messaging/routing" target="_blank" rel="noopener">message routing</a>. You’ll need to include a bunch of infrastructure-related metadata with the content of each business message. You’ll want to build a message dequeuing strategy that performs well and uses broker connections efficiently, keeping concurrency needs in mind.</p>
+<p>Next you’ll need to figure out how to <a href="https://docs.particular.net/nservicebus/recoverability/" target="_blank" rel="noopener">retry messages automatically when the handling logic fails</a>, but not <em>too many</em> times. You have to have a strategy for dealing with poison messages, so you’ll need to move them aside so your handling logic doesn’t get jammed preventing valid messages from being processed. You’ll need a way to <a href="https://docs.particular.net/servicepulse/" target="_blank" rel="noopener">show those messages that have failed and figure out why</a>, so you can fix the problem. You’ll want some sort of <a href="https://docs.particular.net/servicecontrol/contracts" target="_blank" rel="noopener">alerting options</a> so you know when that happens. It would be nice if that poison message display also showed you where that message came from and what the exception was so you don’t need to go digging through log files. After that you’ll need to be able to <a href="https://docs.particular.net/tutorials/message-replay/" target="_blank" rel="noopener">reroute the poison messages back into the queue to try again</a>. In the event of a bad deployment you might have a lot of failed messages, so it would be really nice if you didn’t have to retry the messages one at a time.</p>
+<h2 id="Transactions"><a href="#Transactions" class="headerlink" title="Transactions"></a>Transactions</h2><p>Since you’re using RabbitMQ, there are no transactions on the message broker, so ghost messages and duplicate entities are very real problems. You’ll need to code all message handling logic with idempotency in mind or your RabbitMQ messages and database entities will begin to get inconsistent. Alternatively you could <a href="https://docs.particular.net/nservicebus/outbox/" target="_blank" rel="noopener">design infrastructure to mimic distributed transactions</a> by storing outgoing messaging operations in your business database and then executing the message dispatch operations separately. That results in duplicate messages (by design) so you’ll need to deduplicate messages as they come in, which means you need well a well-defined <a href="https://docs.particular.net/transports/rabbitmq/message-id-strategy" target="_blank" rel="noopener">strategy for consistent message IDs</a> across your system. Be careful, as anything dealing with transactions and concurrency can be extremely tricky.</p>
+<h2 id="Workflow"><a href="#Workflow" class="headerlink" title="Workflow"></a>Workflow</h2><p>You’ll probably want to do some <a href="https://docs.particular.net/nservicebus/sagas/" target="_blank" rel="noopener">workflow type stuff</a>, where an incoming message starts a process that’s essentially a message-driven state machine. Then you can do things like trigger an action once 2 required messages have been received. You’ll need to design a storage system for that data. You’ll probably also need a way to have delayed messages, so you can do things like the <a href="/2015/06/how-to-build-gmails-undo-send-feature/">buyer’s remorse pattern</a>. RabbitMQ has no way to have an arbitrary delay on a message, so you’ll have to <a href="https://docs.particular.net/transports/rabbitmq/delayed-delivery" target="_blank" rel="noopener">come up with a way to implement that</a>.</p>
+<p>You’ll probably want some <a href="https://docs.particular.net/nservicebus/operations/metrics" target="_blank" rel="noopener">metrics</a> and <a href="https://docs.particular.net/nservicebus/operations/performance-counters" target="_blank" rel="noopener">performance counters</a> on this system to know how it’s performing. You’ll want some way to be able to <a href="https://docs.particular.net/nservicebus/testing/" target="_blank" rel="noopener">have tests on your message handling logic</a>, so if you need to swap out some dependencies to make that work you might want to <a href="https://docs.particular.net/nservicebus/dependency-injection/" target="_blank" rel="noopener">integrate a dependency injection framework</a>.</p>
+<h2 id="Documentation"><a href="#Documentation" class="headerlink" title="Documentation"></a>Documentation</h2><p>Because these systems are decentralized by nature it can get pretty difficult to accurately picture what your system looks like. If you <a href="https://docs.particular.net/nservicebus/operations/auditing" target="_blank" rel="noopener">send a copy of every message to a central location</a>, you can <a href="https://docs.particular.net/servicecontrol/" target="_blank" rel="noopener">write some code</a> to stitch together all the message conversations, and then you can use that data to build message flow diagrams, sequence diagrams, etc. This kind of living documentation based on live data can be critical for explaining things to managers or figuring out why a process isn’t working as expected.</p>
+<p>Speaking of documentation, make sure you <a href="https://docs.particular.net/nservicebus/" target="_blank" rel="noopener"><strong>write a whole lot of it</strong></a> for your message queue wrapper, otherwise it will be pretty difficult for other developers to help you maintain it. Of if someone else on your team is writing it, you’ll be totally screwed when they get a different job and leave the company. You’re also going to want a ton of unit tests on the RabbitMQ wrapper you’ve built. Infrastructure code like this should be rock-solid. You don’t want losing a message to result in lost sales or anything like that.</p>
+<p>So if you keep those few things in mind, you can totally use pure RabbitMQ without NServiceBus.</p>
+<p>Hopefully, when you’re done, your boss won’t decide that you need to switch from <a href="https://docs.particular.net/transports/rabbitmq/" target="_blank" rel="noopener">RabbitMQ</a> to <a href="https://docs.particular.net/transports/azure-service-bus/" target="_blank" rel="noopener">Azure Service Bus</a> or <a href="https://docs.particular.net/transports/sqs/" target="_blank" rel="noopener">Amazon SQS</a>.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

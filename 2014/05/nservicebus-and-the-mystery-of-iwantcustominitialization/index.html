@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="Recently Romiko Derbynew was reading my book, Learning NServiceBus, and noticed a contradiction between the manuscript and the included source code:
+
+In the Sample for DependecyInjection in the book, the code is:
+public class ConfigureDependencyInjection : NServiceBus.IWantCustomInitialization
+However in the book, is says
+IWantCustomInitialization should be implemented only on the class that implements IConfigureThisEndpoint and allows you to perform customizations that are unique to that endpoint.
+
+ Of course I could wax philosophic about the tight deadline of book publishing, or how difficult it is to keep the sample code in sync with the manuscript, or how I probably wrote that part of the code and that part of the manuscript on different days on different pre-betas of NServiceBus 4.0, but what it comes down to at the end of the day is #FAIL!
+So here’s the real scoop, or at least, updated information as I see it and would recommend now, circa NServiceBus 4.6.1."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="NServiceBus and the Mystery of IWantCustomInitialization"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="Recently Romiko Derbynew was reading my book, Learning NServiceBus, and noticed a contradiction between the manuscript and the included source code:
+
+In the Sample for DependecyInjection in the book, the code is:
+public class ConfigureDependencyInjection : NServiceBus.IWantCustomInitialization
+However in the book, is says
+IWantCustomInitialization should be implemented only on the class that implements IConfigureThisEndpoint and allows you to perform customizations that are unique to that endpoint.
+
+ Of course I could wax philosophic about the tight deadline of book publishing, or how difficult it is to keep the sample code in sync with the manuscript, or how I probably wrote that part of the code and that part of the manuscript on different days on different pre-betas of NServiceBus 4.0, but what it comes down to at the end of the day is #FAIL!
+So here’s the real scoop, or at least, updated information as I see it and would recommend now, circa NServiceBus 4.6.1."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>NServiceBus and the Mystery of IWantCustomInitialization - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>NServiceBus and the Mystery of IWantCustomInitialization</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            May 27, 2014
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>Recently <a href="http://romikoderbynew.com/" target="_blank" rel="noopener">Romiko Derbynew</a> was reading my book, <a href="http://www.packtpub.com/build-distributed-software-systems-using-dot-net-enterprise-service-bus/book" target="_blank" rel="noopener">Learning NServiceBus</a>, and noticed a contradiction between the manuscript and the included source code:</p>
+<blockquote>
+<p>In the Sample for DependecyInjection in the book, the code is:</p>
+<p>public class ConfigureDependencyInjection : NServiceBus.<strong>IWantCustomInitialization</strong></p>
+<p>However in the book, is says</p>
+<p>IWantCustomInitialization should be implemented <strong>only on the class</strong> that implements <strong>IConfigureThisEndpoint</strong> and allows you to perform customizations that are unique to that endpoint.</p>
+</blockquote>
+<p> Of course I could wax philosophic about the tight deadline of book publishing, or how difficult it is to keep the sample code in sync with the manuscript, or how I probably wrote that part of the code and that part of the manuscript on different days on different pre-betas of NServiceBus 4.0, but what it comes down to at the end of the day is <a href="http://failblog.cheezburger.com/" target="_blank" rel="noopener">#FAIL</a>!</p>
+<p>So here’s the real scoop, or at least, updated information as I see it and would recommend now, circa NServiceBus 4.6.1.</p>
+<a id="more"></a>
+
+<p>The part of the book referenced comes from Chapter 5: Advanced Messaging, where I am discussing the various general extension points in the NServiceBus framework that you can hook into by implementing certain marker interfaces, and then at startup, NServiceBus finds all these classes via assembly scanning and executes them at the proper time.</p>
+<p>The interfaces are nominally described in the order that they are executed, and so I described IWantCustomInitialization third, after IWantCustomLogging and IWantToRunBeforeConfiguration, and described it as shown above. (The quoted passage is the entire bullet point.)</p>
+<p>Unfortunately, it isn’t that easy.</p>
+<p>(The following bit of explanation references history that exists mainly in my mind and, therefore, may not be entirely accurate as I’m not willing to dig through years of Git history to prove it. I might get a detail or two wrong, but stay with me.)</p>
+<p>IWantCustomInitialization and IWantCustomLogging are somewhat unique in the list because they have been around forever (I gauge “forever” as since I started with NServiceBus at Version 2.0) and in the meantime, all of the other interfaces were added on (at least as far as my memory serves) through the development of V3 and V4.</p>
+<p>So in this before-time of long-long-ago, these two interfaces only worked when applied to the EndpointConfig (the class that implements IConfigureThisEndpoint) but the new ones can be on any class, and there can be multiple ones.</p>
+<p>Except as it turns out, IWantCustomInitialization pulls double-duty. It will execute either on the EndpointConfig OR as a standalone class, but with one critical difference: <strong>Whether or not it exists on the EndpointConfig changes the order of execution with respect to the other extension point interfaces!</strong></p>
+<p>When implemented on a random class, an IWantCustomInitialization will run third, where I described in the book (after IWantToRunBeforeConfiguration, but before INeedInitialization) but if implemented on EndpointConfig, it will run second only to IWantCustomLogging, which always runs first because otherwise, you don’t have logging.</p>
+<p>Confused yet? Here’s the definitive updated order:</p>
+<ol>
+<li><p>IWantCustomLogging (only executes on EndpointConfig)</p>
+</li>
+<li><p>IWantCustomInitialization, implemented on EndpointConfig</p>
+</li>
+<li><p>IWantToRunBeforeConfiguration</p>
+</li>
+<li><p>IWantCustomInitialization, implemented on its own class</p>
+</li>
+<li><p>INeedInitialization</p>
+</li>
+<li><p>IWantToRunBeforeConfigurationIsFinalized</p>
+</li>
+<li><p>IWantToRunWhenConfigurationIsComplete *</p>
+</li>
+<li><p>IWantToRunWhenBusStartsAndStops</p>
+<p><em>\</em> One could argue that IWantToRunWhenConfigurationIsComplete should not be listed as a “general extension point” because it alone is located in the NServiceBus.Config namespace, not in the root NServiceBus namespace with all the others. This may have been an oversight that the NServiceBus developers weren’t willing to break SemVer for (which would require bumping to 5.0) or may be intentional, but I personally see the value in having a near-the-end extension point with full access to the DI container.*</p>
+</li>
+</ol>
+<p>So what would I recommend about IWantCustomInitialization now?</p>
+<p>I view the duality of “runs at different times depending upon which class it’s implemented on” to be dangerous and I would rather avoid that, especially since INeedInitialization provides basically the exact same behavior at the exact same time. So I would respect history (and the text in the book) and say that IWantCustomInitialization should only be used on the EndpointConfig for endpoint-specific behaviors, or in a BaseEndpointConfig class you inherit real EndpointConfigs from.</p>
+<p>So that would make the code sample from the book <em>wrong</em>, even though it technically works. I would use INeedInitialization for that class instead.</p>
+<p>By the way, this is a great time to mention a previously reported issue with the same section of the book. Even though the text says that “INeedInitialization is the best place to perform common customizations<br> such as setting a custom dependency injection container…” but as it turns out, the <a href="https://groups.google.com/forum/#!msg/particularsoftware/yDWc7LUMH1M/pv_gEQIBuksJ" target="_blank" rel="noopener">only place you can set up a custom DI container is from IWantCustomInitialization on the EndpointConfig</a>.</p>
+<p>And on a closing note, I would suggest that if you don’t get enough evidence that you are human and make mistakes by being a software developer, you should perhaps consider writing a book. ;-)</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

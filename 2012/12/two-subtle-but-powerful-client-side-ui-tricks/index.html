@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="I thought I would two little tricks that are recent favorites of mine.
+I’ve been doing a lot of client-side development with Backbone.js, Twitter Bootstrap, and LESS. Together they are powerful tools for creating a lot of beautiful client-side UI with complex interactions.
+The two tricks I want to share are a CSS3 fade-in, and Trello-inspired drag-n-drop LESS mix-in."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Two subtle but powerful client-side UI tricks"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="I thought I would two little tricks that are recent favorites of mine.
+I’ve been doing a lot of client-side development with Backbone.js, Twitter Bootstrap, and LESS. Together they are powerful tools for creating a lot of beautiful client-side UI with complex interactions.
+The two tricks I want to share are a CSS3 fade-in, and Trello-inspired drag-n-drop LESS mix-in."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Two subtle but powerful client-side UI tricks - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Two subtle but powerful client-side UI tricks</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            December 18, 2012
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>I thought I would two little tricks that are recent favorites of mine.</p>
+<p>I’ve been doing a lot of client-side development with <a href="http://backbonejs.org/" target="_blank" rel="noopener">Backbone.js</a>, <a href="http://twitter.github.com/bootstrap/" target="_blank" rel="noopener">Twitter Bootstrap</a>, and LESS. Together they are powerful tools for creating a lot of beautiful client-side UI with complex interactions.</p>
+<p>The two tricks I want to share are a CSS3 fade-in, and <a href="https://trello.com/" target="_blank" rel="noopener">Trello-inspired</a> drag-n-drop LESS mix-in.</p>
+<a id="more"></a>
+
+<h1 id="CSS3-Fade-In"><a href="#CSS3-Fade-In" class="headerlink" title="CSS3 Fade-In"></a>CSS3 Fade-In</h1><p>When an application possesses a lot of features, you don’t want the UI to be packed with all the kitchen-sink possibilities that the user could possibly employ. That would be confusing. That would be <a href="http://www.codinghorror.com/blog/2006/02/sometimes-a-word-is-worth-a-thousand-icons.html" target="_blank" rel="noopener">Word 6</a>.</p>
+<p>Instead I prefer to hide some of the functionality and bring it to the forefront as the user starts to interact with it, which usually boils down to hover. The activators for dropdown contextual menus can appear when you hover over something, or buttons can appear in the gutter between two items when the mouse is nearby.</p>
+<p>The problem with this is that when you move the mouse quickly over a large swath of screen, the effect of all those items appearing and disappearing can be quite jarring.</p>
+<blockquote>
+<p><strong>Disclaimer:</strong> This does not take touch devices (which obviously cannot hover) into account. If you need to support touch devices, you need to take steps to modify the layout so that these types of features are either always visible or accessible via other means.</p>
+</blockquote>
+<p>The first step to this is having a reliable hover mechanism. In almost all of my JavaScript projects I usually include this bit of code:</p>
+<pre><code>$(document).on(&apos;mouseover&apos;, &apos;.on-hover&apos;, function() {
+    $(this).addClass(&apos;hover&apos;);
+}).on(&apos;mouseout&apos;, &apos;.on-hover&apos;, function(e) {
+    $(this).removeClass(&apos;hover&apos;);
+});</code></pre><p>This takes any element marked with the “on-hover” class and adds the “hover” class when it’s being hovered upon. I’m sure my wife the editor will take issue with “hovered upon” but it seems the most straightforward description to me.</p>
+<p>After this the LESS mixin is really simple.</p>
+<pre><code>.visibleOnHover(@whenHidden: 0, @duration: 0.5s)
+{
+    opacity: @whenHidden;
+    transition: opacity @duration;
+    &amp;.hover
+    {
+        opacity: 1.0;
+    }
+}</code></pre><p>By default, this makes the item completely invisible until hovered over. You use it like this:</p>
+<pre><code>.some-selector
+{
+    // Invisible until hovered
+    .visibleOnHover();
+}
+.another-selector
+{
+    // Washed out until hovered, custom duration
+    .visibleOnHover(0.3, 0.5s);
+}</code></pre><p>I find that one really good use for the partially visible option (and the one included in the JSFiddle below) is an Add item on the end of a sortable list. It gives the impression that an item can be added without constantly dominating the screen with the add controls. Of course, if you are going to use it in this way, you probably also need to make sure the controls do not fade-out on mouseout if one of the controls within has focus.</p>
+<p>Note that opacity as written isn’t supported by Internet Explorer 6-8. However, this degrades fairly gracefully into always visible, so your effect is lost but at the very least the real business functionality should be fine. As always, test in whatever browsers you plan to support.</p>
+<h1 id="Trello-style-Drag-n-Drop"><a href="#Trello-style-Drag-n-Drop" class="headerlink" title="Trello-style Drag-n-Drop"></a>Trello-style Drag-n-Drop</h1><p>When you drag cards around in Trello, they get a nice drop shadow, they get rotated a little bit, and the cursor goes from a hand while you’re hovering to a “grabbing” hand when dragging. It really gives you the impression that you are moving a 3D object up and over the 2D screen surface.</p>
+<p>It turns out all this is easy with CSS3, and even easier as a LESS mixin.</p>
+<pre><code>.grab()
+{
+    cursor: move;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+    cursor: grab;
+}
+.grabbing()
+{
+    cursor: move;
+    cursor:-moz-grabbing;
+    cursor:-webkit-grabbing;
+    cursor:grabbing;
+    box-shadow: -2px 5px 10px #333;
+    -moz-transform:rotate(2deg);
+    -webkit-transform: rotate(2deg);
+    transform: rotate(2deg);
+}</code></pre><p>I find no reason to parameterize this, because these values always seem to work for me. The one thing I could maybe see would be the rotation degrees, because something really LONG might look silly if you rotate it too much, where with something fairly small you usually don’t notice.</p>
+<p>The first cursor is designed for browsers that don’t do the grab/grabbing icons, and looks like arrows pointing Up, Down, Left, and Right, which is a suitable substitute.</p>
+<p>Usage is like this:</p>
+<pre><code>.something-draggable
+{
+    .grab();
+}
+.something-draggable.ui-sortable-helper
+{
+    .grabbing();
+}</code></pre><h1 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h1><p>Check out examples of both of these tricks in the <a href="http://jsfiddle.net/AzR82/" target="_blank" rel="noopener">JSFiddle below</a>:</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

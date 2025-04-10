@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="On my team, we use FogBugz for case/defect tracking and project management, and we absolutely love it.
+So when the folks over at Fog Creek created Kiln for version control with integrated code review, we had to try it out, and once I tried it, I knew we had to have it.
+Of course, Kiln is based on Mercurial, and in order to convert, we have a fairly large Subversion repository that we need to convert. At least, at over 4000 revisions and still growing, it feels pretty big to us.
+(If you have no idea what Kiln or Mercurial is all about, I encourage you to check out Hg Init, a tutorial on Mercurial written by Joel Spolsky, which is extremely informative and well written.)
+Fog Creek provides an import tool that is pretty impressive, since it is able to do import from half a dozen different existing source control systems (including just a pile of files on disk) and does it pretty well. However, it didn’t meet our needs in a few areas:"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Subversion to Mercurial Conversion App"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="On my team, we use FogBugz for case/defect tracking and project management, and we absolutely love it.
+So when the folks over at Fog Creek created Kiln for version control with integrated code review, we had to try it out, and once I tried it, I knew we had to have it.
+Of course, Kiln is based on Mercurial, and in order to convert, we have a fairly large Subversion repository that we need to convert. At least, at over 4000 revisions and still growing, it feels pretty big to us.
+(If you have no idea what Kiln or Mercurial is all about, I encourage you to check out Hg Init, a tutorial on Mercurial written by Joel Spolsky, which is extremely informative and well written.)
+Fog Creek provides an import tool that is pretty impressive, since it is able to do import from half a dozen different existing source control systems (including just a pile of files on disk) and does it pretty well. However, it didn’t meet our needs in a few areas:"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Subversion to Mercurial Conversion App - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Subversion to Mercurial Conversion App</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            June 23, 2010
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>On my team, we use <a href="http://www.fogcreek.com/fogbugz/" target="_blank" rel="noopener">FogBugz</a> for case/defect tracking and project management, and we absolutely love it.</p>
+<p>So when the folks over at <a href="http://www.fogcreek.com" target="_blank" rel="noopener">Fog Creek</a> created <a href="http://www.fogcreek.com/kiln/" target="_blank" rel="noopener">Kiln</a> for version control with integrated code review, we had to try it out, and once I tried it, I knew we had to have it.</p>
+<p>Of course, Kiln is based on Mercurial, and in order to convert, we have a fairly large Subversion repository that we need to convert. At least, at over 4000 revisions and still growing, it feels pretty big to us.</p>
+<p>(If you have no idea what Kiln or Mercurial is all about, I encourage you to check out <a href="http://hginit.com/" target="_blank" rel="noopener">Hg Init</a>, a tutorial on Mercurial written by <a href="http://joelonsoftware.com/" target="_blank" rel="noopener">Joel Spolsky</a>, which is extremely informative and well written.)</p>
+<p>Fog Creek provides an import tool that is pretty impressive, since it is able to do import from half a dozen different existing source control systems (including just a pile of files on disk) and does it pretty well. However, it didn’t meet our needs in a few areas:</p>
+<a id="more"></a>
+
+<ul>
+<li>It doesn’t take advantage of author mapping offered by the hg convert utility. Our current Subversion server (VisualSVN Server) uses our Windows credentials, which are based on an archaic corporate naming scheme, so we really would like to map these to our real names.</li>
+<li>The conversion is imperfect, resulting in some directories and files that aren’t in the head of the Subversion trunk turning up in the converted Mercurial repository. These are directories that existed long ago, before a massive repository reorganization moved them elsewhere. In any case, we don’t want them, and we don’t necessarily want to hunt them down manually.</li>
+<li>The conversion doesn’t convert Subversion’s svn:ignore properties into an .hgignore file. When you’re developing with Visual Studio 2008 and a large solution, that results in a bunch of untracked bin and obj directories.</li>
+<li>Although this turned out not to be important for us, the importer does not allow carving a large Subversion repository into a bunch of smaller subrepositories.</li>
+</ul>
+<p>I developed a Windows Forms application in C# to handle our conversion, and learned a lot about the command-line svn and hg commands along the way. I offer it to you in the hopes that you might find it useful, because there is no greater tragedy than code that is written and only executed once.</p>
+<p>I warn you, the application is NOT what I would call polished source code or UI. It’s REALLY rough around the edges. It was designed experimentally to get a job done that only had to be done once. Niceties were not observed. Sorry! And of course I make no warranties that it will work for you, AT ALL!</p>
+<p>That said, here’s the link:</p>
+<ul>
+<li><a href="/downloads/HgImport.zip">HgImport</a> - A Visual Studio 2008 project for an SVN to Mercurial import application</li>
+<li><em>Requires the pre-.Net-4.0 Task Parallel Library extensions</em></li>
+</ul>
+<p>Here’s how to use it:</p>
+<ul>
+<li><p>You must enable the hg convert extension:</p>
+<ul>
+<li>Edit your .hgrc file in your user folder … which if you’re using Kiln on Windows, may be called Mercurial.ini instead.</li>
+<li>Find the [extensions] section of the file, and add the line “hgext.convert=” (without the quotes) underneath.</li>
+<li>All this does is enables the convert command on the command line. See the <a href="http://mercurial.selenic.com/wiki/ConvertExtension" target="_blank" rel="noopener">Mercurial ConvertExtension</a> documentation for further details.</li>
+</ul>
+</li>
+<li><p>Build and run the application.</p>
+</li>
+<li><p>Switch to the Author Map tab and enter your username mappings. Each line should take this format:</p>
+<ul>
+<li>oldusername = Firstname Lastname</li>
+</ul>
+</li>
+<li><p>I don’t save that text anywhere. Copy and paste it into a text file for safekeeping. Now switch tabs back.</p>
+</li>
+<li><p>Enter your Subversion repository trunk url in the text box. (Sorry, we are just converting our trunk. All our branches are dead and we want to be rid of them. You’re welcome to change the code if you like!)</p>
+</li>
+<li><p>Click the Load SVN button. Sorry if your repository requires login. My app doesn’t support it. I warned you it was rough around the edges! You can either modify the source or do what I did: use the svnsync command to sync your central SVN repository server onto a mirror repository on your local computer. This has the added benefit of speeding the conversion process by taking the network out of the equation.</p>
+</li>
+<li><p>Check any directories that you want to convert into subrepositories. (Since I abandoned this feature, this is NOT well tested! Especially the .hgignore doesn’t take subrepositories into account.)</p>
+</li>
+<li><p>Click Convert and then go get a snack. I estimate approximately one snack per thousand SVN revisions, or one full meal per 5000 revisions. Just ballpark figures.</p>
+</li>
+</ul>
+<p>Here’s what the conversion process does:</p>
+<ul>
+<li>When you load the SVN repository, it loads the SVN head file structure into an XML document in memory.</li>
+<li>When you begin conversion, first it clears out the working directory. (“working” under the execution directory)</li>
+<li>Next, the app performs a full convert of the SVN repository using “hg convert”, similar to what the Kiln import tool does, although the authors are mapped at this point.</li>
+<li>Next, the app updates the Mercurial repository with “hg up” to essentially establish the working copy.</li>
+<li>Next, the Mercurial working directory is compared recursively with the SVN-exported XML file structure. This creates a filtering list that eliminates the phantom directories and files that no longer exist in the SVN working copy.</li>
+<li>Next, the intermediate Mercurial repository is converted to the final Mercurial repository using “hg convert”, utilizing the previously created filter, and then the final repository is updated with “hg up”.</li>
+<li>If you selected subrepositories, the filtering file will also exclude those directories, and then the app will attempt to repeat the process of converting each subrepository out of the transitional repository. Like I said, I gave up on this feature and this will definitely not work with .hgignore, if it even works at all!</li>
+<li>Lastly, the app will query the SVN repository for svn:ignore properties, and translate these into an .hgignore file in the root of your new Mercurial repository. Then this file will be added with “hg add” and committed with “hg commit”.</li>
+</ul>
+<p>At this point, {AppWorkingDirectory}\working\FilteredRepo will be a fully functioning Mercurial repository! If you want to stop there, great, or it’s ready to push up to Kiln.</p>
+<p>That’s it. It’s not pretty, but it works for us and hopefully it will work for you, or at least serve as a starting point. Enjoy!</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

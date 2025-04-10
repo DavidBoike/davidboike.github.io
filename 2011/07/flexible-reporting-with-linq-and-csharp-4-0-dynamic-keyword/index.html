@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="It’s commonly very difficult to question business people about reporting requirements.  It’s not really their fault either – they just can’t know exactly what they want until they’re trying to answer a question and can’t easily do it with the reports you’ve given them.
+This is why it’s good to make reports as flexible and updateable as possible, but with as little developer required to update the reports as possible.
+If you’re operating in an environment where all database access must be via stored procedures, this is a really big problem.  It’s really unlikely that the changes requested by business can be implemented with the same stored procedure you naïvely created for your first attempt.  I’ve seen scenarios where a database has stored procedures with the suffixes GetReport, GetReport2, GetReport3, GetReport4, etc.  Yuck.
+Even if you’re using Entity Framework, LINQ to SQL, or some other data layer framework that enables more free-form access to the database, you can’t always ensure that all report queries will result in good execution costs and actually be performant."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Flexible Reporting with LINQ and C# 4.0 dynamic keyword"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="It’s commonly very difficult to question business people about reporting requirements.  It’s not really their fault either – they just can’t know exactly what they want until they’re trying to answer a question and can’t easily do it with the reports you’ve given them.
+This is why it’s good to make reports as flexible and updateable as possible, but with as little developer required to update the reports as possible.
+If you’re operating in an environment where all database access must be via stored procedures, this is a really big problem.  It’s really unlikely that the changes requested by business can be implemented with the same stored procedure you naïvely created for your first attempt.  I’ve seen scenarios where a database has stored procedures with the suffixes GetReport, GetReport2, GetReport3, GetReport4, etc.  Yuck.
+Even if you’re using Entity Framework, LINQ to SQL, or some other data layer framework that enables more free-form access to the database, you can’t always ensure that all report queries will result in good execution costs and actually be performant."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Flexible Reporting with LINQ and C# 4.0 dynamic keyword - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Flexible Reporting with LINQ and C# 4.0 dynamic keyword</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            July 10, 2011
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>It’s commonly very difficult to question business people about reporting requirements.  It’s not really their fault either – they just can’t know exactly what they want until they’re trying to answer a question and can’t easily do it with the reports you’ve given them.</p>
+<p>This is why it’s good to make reports as flexible and updateable as possible, but with as little developer required to update the reports as possible.</p>
+<p>If you’re operating in an environment where all database access must be via stored procedures, this is a really big problem.  It’s really unlikely that the changes requested by business can be implemented with the same stored procedure you naïvely created for your first attempt.  I’ve seen scenarios where a database has stored procedures with the suffixes GetReport, GetReport2, GetReport3, GetReport4, etc.  Yuck.</p>
+<p>Even if you’re using Entity Framework, LINQ to SQL, or some other data layer framework that enables more free-form access to the database, you can’t always ensure that all report queries will result in good execution costs and actually be performant.</p>
+<a id="more"></a>
+
+<p>This is why it can sometimes be a good idea to perform a very basic database query (via stored procedure if necessary) to get a base set of data, and then perform more conditional operations on it in memory with LINQ.  It’s a pain to do a “Name Contains” filter in a stored procedure (especially if there are a dozen other options) but with LINQ it’s no big deal.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">IEnumerable data &#x3D; GetBaseData();</span><br><span class="line">if (!String.IsNullOrEmpty(nameFilter))</span><br><span class="line">    data &#x3D; data.Where(d &#x3D;&gt; d.Name.IndexOf(nameFilter, StringComparison.OrdinalIgnoreCase) &gt;&#x3D; 0);</span><br></pre></td></tr></table></figure>
+
+<p>This is really great for simple filters, but gets difficult when we want to do more complex grouping and aggregating functions, such as grouping by Hourly/Daily/Weekly/Monthly and/or by other data points.</p>
+<p>The remainder of this article will show how this can be done with static code, and then how we can drastically increase the maintainability of this same code by employing the dynamic keyword introduced in C# 4.0.</p>
+<h2 id="The-NET-3-5-Way"><a href="#The-NET-3-5-Way" class="headerlink" title="The .NET 3.5 Way"></a>The .NET 3.5 Way</h2><p>Let’s consider the following data type.  It represents a simplified sort of reporting data you might see from an ad platform that is utilized on the web and also on mobile devices (iOS and Android).</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class ReportData</span><br><span class="line">&#123;</span><br><span class="line">    public DateTime Date &#123; get; set; &#125;</span><br><span class="line">    public string Platform &#123; get; set; &#125;</span><br><span class="line">    public string Size &#123; get; set; &#125;</span><br><span class="line">    public int Views &#123; get; set; &#125;</span><br><span class="line">    public int Clicks &#123; get; set; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>We want the ability to do any of these things independently or together:</p>
+<ul>
+<li>Group Date by Hour, Day, Week, Hour, or an overall Summary</li>
+<li>Group all platforms together</li>
+<li>Group all sizes together</li>
+</ul>
+<p>Of course, no matter what we do, we will always sum the Views and Clicks.</p>
+<p>Let’s start with some code to generate quite a bit of random data and then show it to us:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">class Program</span><br><span class="line">&#123;</span><br><span class="line">    static void Main(string[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        List data &#x3D; CreateRandomData();</span><br><span class="line">        Report(&quot;Raw Data, Top 10&quot;, data.Take(10));</span><br><span class="line">        Console.ReadLine();</span><br><span class="line">    &#125;</span><br><span class="line">    private static List CreateRandomData()</span><br><span class="line">    &#123;</span><br><span class="line">        List data &#x3D; new List();</span><br><span class="line">        Random rand &#x3D; new Random();</span><br><span class="line">        DateTime start &#x3D; new DateTime(2011,1,1);</span><br><span class="line">        DateTime end &#x3D; new DateTime(2011, 7, 1);</span><br><span class="line">        for (DateTime dt &#x3D; start; dt &lt; end; dt &#x3D; dt.AddHours(1))</span><br><span class="line">        &#123;</span><br><span class="line">            foreach (string platform in new string[] &#123; &quot;Web&quot;, &quot;iOS&quot;, &quot;Android&quot; &#125;)</span><br><span class="line">            &#123;</span><br><span class="line">                foreach (string size in new string[] &#123; &quot;Standard&quot;, &quot;Enhanced&quot; &#125;)</span><br><span class="line">                &#123;</span><br><span class="line">                    int views &#x3D; rand.Next(0, 50);</span><br><span class="line">                    int clicks &#x3D; rand.Next(0, views &#x2F; 3);</span><br><span class="line">                    data.Add(new ReportData</span><br><span class="line">                    &#123;</span><br><span class="line">                        Date &#x3D; dt,</span><br><span class="line">                        Platform &#x3D; platform,</span><br><span class="line">                        Size &#x3D; size,</span><br><span class="line">                        Views &#x3D; views,</span><br><span class="line">                        Clicks &#x3D; clicks</span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        Console.WriteLine(&quot;Generated &#123;0&#125; Sample Rows&quot;, data.Count);</span><br><span class="line">        return data;</span><br><span class="line">    &#125;</span><br><span class="line">    private static void Report(string label, IEnumerable data)</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine();</span><br><span class="line">        Console.WriteLine(label);</span><br><span class="line">        string format &#x3D; &quot;&#123;0:MM&#x2F;dd&#x2F;yyyy HH:mm&#125;   &#123;1,-8&#125;  &#123;2,-8&#125;  &#123;3,6&#125;  &#123;4,6&#125;&quot;;</span><br><span class="line">        Console.WriteLine(format, &quot;Date            &quot;, &quot;Platform&quot;, &quot;Size&quot;, &quot;Views&quot;, &quot;Clicks&quot;);</span><br><span class="line">        foreach (ReportData d in data)</span><br><span class="line">            Console.WriteLine(format,d.Date, d.Platform, d.Size, d.Views, d.Clicks);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This results in the following output.  (The Views and Clicks will be different each time because they are generated randomly.)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Generated 26064 Sample Rows</span><br><span class="line">Raw Data, Top 10</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Web       Standard      15       2</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Web       Enhanced      34       1</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   iOS       Standard      36       2</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   iOS       Enhanced      20       5</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Android   Standard      44       8</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Android   Enhanced      29       4</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   Web       Standard      45       9</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   Web       Enhanced      30       7</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   iOS       Standard      25       5</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   iOS       Enhanced      47       9</span><br></pre></td></tr></table></figure>
+
+<p>So how would we do this filtering statically?  For each item we want to group by, we have to do a combination GroupBy-Select that groups on everything ELSE.</p>
+<p>Here is the example for Platform and Size, which are a lot simpler than for Date.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">private static IEnumerable ProcessVersion1(IEnumerable data, DateMode dateMode, bool platform, bool size)</span><br><span class="line">&#123;</span><br><span class="line">    if(platform)</span><br><span class="line">    &#123;</span><br><span class="line">        data &#x3D; data.GroupBy(d &#x3D;&gt; new</span><br><span class="line">        &#123;</span><br><span class="line">            Date &#x3D; d.Date,</span><br><span class="line">            Size &#x3D; d.Size,</span><br><span class="line">        &#125;)</span><br><span class="line">        .Select(g &#x3D;&gt; new ReportData</span><br><span class="line">        &#123;</span><br><span class="line">            Date &#x3D; g.Key.Date,</span><br><span class="line">            Platform &#x3D; &quot;All&quot;,</span><br><span class="line">            Size &#x3D; g.Key.Size,</span><br><span class="line">            Views &#x3D; g.Sum(d &#x3D;&gt; d.Views),</span><br><span class="line">            Clicks &#x3D; g.Sum(d &#x3D;&gt; d.Clicks)</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    if (size)</span><br><span class="line">    &#123;</span><br><span class="line">        data &#x3D; data.GroupBy(d &#x3D;&gt; new</span><br><span class="line">        &#123;</span><br><span class="line">            Date &#x3D; d.Date,</span><br><span class="line">            Platform &#x3D; d.Platform,</span><br><span class="line">        &#125;)</span><br><span class="line">        .Select(g &#x3D;&gt; new ReportData</span><br><span class="line">        &#123;</span><br><span class="line">            Date &#x3D; g.Key.Date,</span><br><span class="line">            Platform &#x3D; g.Key.Platform,</span><br><span class="line">            Size &#x3D; &quot;All&quot;,</span><br><span class="line">            Views &#x3D; g.Sum(d &#x3D;&gt; d.Views),</span><br><span class="line">            Clicks &#x3D; g.Sum(d &#x3D;&gt; d.Clicks)</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; Date to come later</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>So to group all the Platforms together, we must group by Date and Size, then emit new data items that have “All” for the Platform, emit the Date and Size from the grouping key, and sum the Views and Clicks.  To group all Sizes together, we must group by Date and Platform, then emit new data items that have “All” for the Size, emit the Date and Platform from the grouping key, and sum the Views and Clicks.</p>
+<p>In short, to group an axis together, you must (for the most part) focus on all of the OTHER axes.</p>
+<p>It gets worse for a Date grouping:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public enum DateMode</span><br><span class="line">&#123;</span><br><span class="line">    Hourly,</span><br><span class="line">    Daily,</span><br><span class="line">    Weekly,</span><br><span class="line">    Monthly,</span><br><span class="line">    Summary,</span><br><span class="line">&#125;</span><br><span class="line">private static IEnumerable ProcessVersion1(IEnumerable data, DateMode dateMode, bool platform, bool size)</span><br><span class="line">&#123;</span><br><span class="line">    &#x2F;&#x2F; Platform and Size, handled previously</span><br><span class="line">    switch (dateMode)</span><br><span class="line">    &#123;</span><br><span class="line">        case DateMode.Hourly:</span><br><span class="line">            &#x2F;&#x2F; No need to modify the data, we&#39;re assuming it comes from</span><br><span class="line">            &#x2F;&#x2F; the database already grouped by Hour</span><br><span class="line">            break;</span><br><span class="line">        case DateMode.Daily:</span><br><span class="line">            data &#x3D; data.GroupBy(d &#x3D;&gt; new</span><br><span class="line">            &#123;</span><br><span class="line">                Date &#x3D; d.Date.Date,</span><br><span class="line">                Platform &#x3D; d.Platform,</span><br><span class="line">                Size &#x3D; d.Size</span><br><span class="line">            &#125;)</span><br><span class="line">            .Select(g &#x3D;&gt; new ReportData</span><br><span class="line">            &#123;</span><br><span class="line">                Date &#x3D; g.Key.Date,</span><br><span class="line">                Platform &#x3D; g.Key.Platform,</span><br><span class="line">                Size &#x3D; g.Key.Size,</span><br><span class="line">                Views &#x3D; g.Sum(d &#x3D;&gt; d.Views),</span><br><span class="line">                Clicks &#x3D; g.Sum(d &#x3D;&gt; d.Clicks)</span><br><span class="line">            &#125;);</span><br><span class="line">            break;</span><br><span class="line">        case DateMode.Weekly:</span><br><span class="line">            data &#x3D; data.GroupBy(d &#x3D;&gt; new</span><br><span class="line">            &#123;</span><br><span class="line">                Date &#x3D; d.Date.Date.AddDays(-((int)d.Date.Date.DayOfWeek)),</span><br><span class="line">                Platform &#x3D; d.Platform,</span><br><span class="line">                Size &#x3D; d.Size</span><br><span class="line">            &#125;)</span><br><span class="line">            .Select(g &#x3D;&gt; new ReportData</span><br><span class="line">            &#123;</span><br><span class="line">                Date &#x3D; g.Key.Date,</span><br><span class="line">                Platform &#x3D; g.Key.Platform,</span><br><span class="line">                Size &#x3D; g.Key.Size,</span><br><span class="line">                Views &#x3D; g.Sum(d &#x3D;&gt; d.Views),</span><br><span class="line">                Clicks &#x3D; g.Sum(d &#x3D;&gt; d.Clicks)</span><br><span class="line">            &#125;);</span><br><span class="line">            break;</span><br><span class="line">        case DateMode.Monthly:</span><br><span class="line">            data &#x3D; data.GroupBy(d &#x3D;&gt; new</span><br><span class="line">            &#123;</span><br><span class="line">                Date &#x3D; new DateTime(d.Date.Year, d.Date.Month, 1),</span><br><span class="line">                Platform &#x3D; d.Platform,</span><br><span class="line">                Size &#x3D; d.Size</span><br><span class="line">            &#125;)</span><br><span class="line">            .Select(g &#x3D;&gt; new ReportData</span><br><span class="line">            &#123;</span><br><span class="line">                Date &#x3D; g.Key.Date,</span><br><span class="line">                Platform &#x3D; g.Key.Platform,</span><br><span class="line">                Size &#x3D; g.Key.Size,</span><br><span class="line">                Views &#x3D; g.Sum(d &#x3D;&gt; d.Views),</span><br><span class="line">                Clicks &#x3D; g.Sum(d &#x3D;&gt; d.Clicks)</span><br><span class="line">            &#125;);</span><br><span class="line">            break;</span><br><span class="line">        case DateMode.Summary:</span><br><span class="line">            data &#x3D; data.GroupBy(d &#x3D;&gt; new</span><br><span class="line">            &#123;</span><br><span class="line">                Platform &#x3D; d.Platform,</span><br><span class="line">                Size &#x3D; d.Size</span><br><span class="line">            &#125;)</span><br><span class="line">            .Select(g &#x3D;&gt; new ReportData</span><br><span class="line">            &#123;</span><br><span class="line">                Date &#x3D; DateTime.MinValue,</span><br><span class="line">                Platform &#x3D; g.Key.Platform,</span><br><span class="line">                Size &#x3D; g.Key.Size,</span><br><span class="line">                Views &#x3D; g.Sum(d &#x3D;&gt; d.Views),</span><br><span class="line">                Clicks &#x3D; g.Sum(d &#x3D;&gt; d.Clicks)</span><br><span class="line">            &#125;);</span><br><span class="line">            break;</span><br><span class="line">    &#125;</span><br><span class="line">    return data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Can you imagine how much of a mess it would be if we had to add a new property to this mix?  If we were to add another property that was similar to Platform or Size, we would need to reference it twice for each of the 4 date cases (in the GroupBy and in the Select) and then twice each for the existing Platform and Size groupings, not to mention its own grouping logic.  That’s 12 edit points needed to add one property!</p>
+<p>That simply is not maintainable, and there must be a better way.</p>
+<p>One answer to the Stack Overflow question <a href="http://stackoverflow.com/questions/3929041/dynamic-linq-groupby-multiple-columns#3929455" target="_blank" rel="noopener">Dynamic LINQ GroupBy Multiple Columns</a> suggests a way that would make this still possible <em>without</em> using dynamic code.  It involves making an EntryGrouper class that implements IEquatable and serves as the grouping key for the GroupBy operations.  While this method should work, it is by no means short, and would have to be re-implemented for every new use case.  The use of the dynamic keyword I present can be reused over and over.</p>
+<h2 id="Introducing-the-dynamic-keyword"><a href="#Introducing-the-dynamic-keyword" class="headerlink" title="Introducing the dynamic keyword"></a>Introducing the dynamic keyword</h2><p><a href="http://msdn.microsoft.com/en-us/library/dd264736.aspx" target="_blank" rel="noopener">C# 4.0 introduces the dynamic keyword</a> (and indeed a whole new dynamic runtime) that enables us to declare any properties we want on an object, and it is not evaluated until runtime.</p>
+<p>Now, this isn’t completely magical – you could cast any object to a dynamic and it would compile, but at runtime there must be some mechanism to provide the values and methods you try to use.</p>
+<p>Most of the time, we will use <a href="http://msdn.microsoft.com/en-us/library/system.dynamic.expandoobject.aspx" target="_blank" rel="noopener">System.Dynamic.ExpandoObject</a> to accomplish this for us.  ExpandoObject by itself is another statically-typed object that we cannot declare random properties on.  Only when we assign it to a dynamic variable does it get this power, but under the hood, the ExpandoObject essentially stores values in a Dictionary, and we can exploit that for our purposes.</p>
+<p>By itself, ExpandoObject does not override GetHashCode() or Equals() from the base object, and LINQ’s GroupBy method needs this in order to do its work.  So first, we must create a wrapper that enables us to use the power of the dynamic keyword, compute equivalence and a hash code, and enable us to get back at the original data for the Select afterwards.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class DynamicHashWrapper</span><br><span class="line">&#123;</span><br><span class="line">    public dynamic Value &#123; get; private set; &#125;</span><br><span class="line">    private Dictionary dict;</span><br><span class="line">    private HashSet keys;</span><br><span class="line">    private static IEqualityComparer&gt; keyComparer &#x3D; HashSet.CreateSetComparer();</span><br><span class="line">    public DynamicHashWrapper(dynamic value)</span><br><span class="line">    &#123;</span><br><span class="line">        this.Value &#x3D; value;</span><br><span class="line">        dict &#x3D; new Dictionary(value as IDictionary);</span><br><span class="line">        keys &#x3D; new HashSet(dict.Keys);</span><br><span class="line">    &#125;</span><br><span class="line">    private int? hashCode;</span><br><span class="line">    public override int GetHashCode()</span><br><span class="line">    &#123;</span><br><span class="line">        if (!this.hashCode.HasValue)</span><br><span class="line">        &#123;</span><br><span class="line">            int code &#x3D; 0;</span><br><span class="line">            foreach (var entry in dict.OrderBy(p &#x3D;&gt; p.Key))</span><br><span class="line">                code ^&#x3D; entry.Value.GetHashCode();</span><br><span class="line">            this.hashCode &#x3D; code;</span><br><span class="line">        &#125;</span><br><span class="line">        return this.hashCode.Value;</span><br><span class="line">    &#125;</span><br><span class="line">    public override bool Equals(object obj)</span><br><span class="line">    &#123;</span><br><span class="line">        if (!(obj is DynamicHashWrapper))</span><br><span class="line">            return false;</span><br><span class="line">        DynamicHashWrapper other &#x3D; obj as DynamicHashWrapper;</span><br><span class="line">        return keyComparer.Equals(this.keys, other.keys)</span><br><span class="line">            &amp;&amp; this.GetHashCode() &#x3D;&#x3D; other.GetHashCode();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>After creating a dynamic variable, we can wrap it with this class.  It does the following:</p>
+<ul>
+<li>Stores the dynamic value itself so we can retrieve its properties back later.</li>
+<li>Converts the dynamic ExpandoObject to a Dictionary that we can enumerate.</li>
+<li>Enables computation of a hash code by XOR-ing the values of the dictionary.</li>
+<li>Determines if two values are equal by ensuring that the dictionary sizes are equal and that the hash codes are equal.</li>
+</ul>
+<p>With this addition to the dynamic object, we can now re-implement our data processing routine:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">private static IEnumerable ProcessVersion2(IEnumerable data, DateMode dateMode, bool platform, bool size)</span><br><span class="line">&#123;</span><br><span class="line">    return data</span><br><span class="line">        .GroupBy(d &#x3D;&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            dynamic key &#x3D; new ExpandoObject();</span><br><span class="line">            switch (dateMode)</span><br><span class="line">            &#123;</span><br><span class="line">                case DateMode.Hourly: key.Date &#x3D; d.Date; break;</span><br><span class="line">                case DateMode.Daily: key.Date &#x3D; d.Date.Date; break;</span><br><span class="line">                case DateMode.Weekly: key.Date &#x3D; d.Date.Date.AddDays(-((int)d.Date.DayOfWeek)); break;</span><br><span class="line">                case DateMode.Monthly: key.Date &#x3D; new DateTime(d.Date.Year, d.Date.Month, 1); break;</span><br><span class="line">                case DateMode.Summary: key.Date &#x3D; DateTime.MinValue; break;</span><br><span class="line">            &#125;</span><br><span class="line">            if (!platform)</span><br><span class="line">                key.Platform &#x3D; d.Platform;</span><br><span class="line">            if (!size)</span><br><span class="line">                key.Size &#x3D; d.Size;</span><br><span class="line">            return new DynamicHashWrapper(key);</span><br><span class="line">        &#125;)</span><br><span class="line">        .Select(g &#x3D;&gt; new ReportData</span><br><span class="line">        &#123;</span><br><span class="line">            Date &#x3D; g.Key.Value.Date,</span><br><span class="line">            Platform &#x3D; platform ? &quot;All&quot; : g.Key.Value.Platform,</span><br><span class="line">            Size &#x3D; size ? &quot;All&quot; : g.Key.Value.Size,</span><br><span class="line">            Views &#x3D; g.Sum(d &#x3D;&gt; d.Views),</span><br><span class="line">            Clicks &#x3D; g.Sum(d &#x3D;&gt; d.Clicks)</span><br><span class="line">        &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Now we have a single GroupBy and a single Select.  By the way, grouping and selecting only once means we should get a performance improvement because we aren’t generating a bunch of intermediate objects each time we do a grouping – we create one dynamic grouping key and spin through the collection only once.  Of course, the dynamic object probably has its own overhead from not being statically compiled, but the improvement in maintainability is WELL worth that small setback.</p>
+<p>As a comparison, this new implementation takes 33 lines of code, whereas the original was 111 lines.  Who wants to try to maintain a 111-line method!?</p>
+<p>Now we can try a bunch of different groupings and see them in action.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">static void Main(string[] args)</span><br><span class="line">&#123;</span><br><span class="line">    List data &#x3D; CreateRandomData();</span><br><span class="line">    Report(&quot;Raw Data, Top 10&quot;, data.Take(10));</span><br><span class="line">    Report(&quot;Group Platform&quot;, Process(data, DateMode.Hourly, true, false).Take(10));</span><br><span class="line">    Report(&quot;Group Size&quot;, Process(data, DateMode.Hourly, false, true).Take(10));</span><br><span class="line">    Report(&quot;Group Platform &amp; Size&quot;, Process(data, DateMode.Hourly, true, true).Take(10));</span><br><span class="line">    Report(&quot;Group All by Day&quot;, Process(data, DateMode.Daily, true, true).Take(10));</span><br><span class="line">    Report(&quot;Group All by Week&quot;, Process(data, DateMode.Weekly, true, true).Take(10));</span><br><span class="line">    Report(&quot;Group All by Month&quot;, Process(data, DateMode.Monthly, true, true).Take(10));</span><br><span class="line">    Report(&quot;Group All Summary&quot;, Process(data, DateMode.Summary, true, true).Take(10));</span><br><span class="line">    Report(&quot;Summary By Types&quot;, Process(data, DateMode.Summary, false, false).Take(10));</span><br><span class="line">    Console.ReadLine();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Generated 26064 Sample Rows</span><br><span class="line">Raw Data, Top 10</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Web       Standard      15       3</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Web       Enhanced      45       5</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   iOS       Standard       9       1</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   iOS       Enhanced       6       1</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Android   Standard       0       0</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Android   Enhanced       7       0</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   Web       Standard      33       7</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   Web       Enhanced       1       0</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   iOS       Standard      28       7</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   iOS       Enhanced      25       5</span><br><span class="line">Group Platform</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   All       Standard      24       4</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   All       Enhanced      58       6</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   All       Standard     105      14</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   All       Enhanced      49       8</span><br><span class="line">01&#x2F;01&#x2F;2011 02:00   All       Standard     133      13</span><br><span class="line">01&#x2F;01&#x2F;2011 02:00   All       Enhanced      36       6</span><br><span class="line">01&#x2F;01&#x2F;2011 03:00   All       Standard      95      16</span><br><span class="line">01&#x2F;01&#x2F;2011 03:00   All       Enhanced      94      25</span><br><span class="line">01&#x2F;01&#x2F;2011 04:00   All       Standard      58      14</span><br><span class="line">01&#x2F;01&#x2F;2011 04:00   All       Enhanced      78       3</span><br><span class="line">Group Size</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Web       All           60       8</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   iOS       All           15       2</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   Android   All            7       0</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   Web       All           34       7</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   iOS       All           53      12</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   Android   All           67       3</span><br><span class="line">01&#x2F;01&#x2F;2011 02:00   Web       All           55       0</span><br><span class="line">01&#x2F;01&#x2F;2011 02:00   iOS       All           42      10</span><br><span class="line">01&#x2F;01&#x2F;2011 02:00   Android   All           72       9</span><br><span class="line">01&#x2F;01&#x2F;2011 03:00   Web       All           53      11</span><br><span class="line">Group Platform &amp; Size</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   All       All           82      10</span><br><span class="line">01&#x2F;01&#x2F;2011 01:00   All       All          154      22</span><br><span class="line">01&#x2F;01&#x2F;2011 02:00   All       All          169      19</span><br><span class="line">01&#x2F;01&#x2F;2011 03:00   All       All          189      41</span><br><span class="line">01&#x2F;01&#x2F;2011 04:00   All       All          136      17</span><br><span class="line">01&#x2F;01&#x2F;2011 05:00   All       All          142      17</span><br><span class="line">01&#x2F;01&#x2F;2011 06:00   All       All          150      15</span><br><span class="line">01&#x2F;01&#x2F;2011 07:00   All       All          181      33</span><br><span class="line">01&#x2F;01&#x2F;2011 08:00   All       All          143      22</span><br><span class="line">01&#x2F;01&#x2F;2011 09:00   All       All          208      34</span><br><span class="line">Group All by Day</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   All       All         3756     552</span><br><span class="line">01&#x2F;02&#x2F;2011 00:00   All       All         3370     479</span><br><span class="line">01&#x2F;03&#x2F;2011 00:00   All       All         3537     503</span><br><span class="line">01&#x2F;04&#x2F;2011 00:00   All       All         3298     469</span><br><span class="line">01&#x2F;05&#x2F;2011 00:00   All       All         3605     573</span><br><span class="line">01&#x2F;06&#x2F;2011 00:00   All       All         3617     518</span><br><span class="line">01&#x2F;07&#x2F;2011 00:00   All       All         3193     450</span><br><span class="line">01&#x2F;08&#x2F;2011 00:00   All       All         3485     513</span><br><span class="line">01&#x2F;09&#x2F;2011 00:00   All       All         3629     504</span><br><span class="line">01&#x2F;10&#x2F;2011 00:00   All       All         3628     533</span><br><span class="line">Group All by Week</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">12&#x2F;26&#x2F;2010 00:00   All       All         3756     552</span><br><span class="line">01&#x2F;02&#x2F;2011 00:00   All       All        24105    3505</span><br><span class="line">01&#x2F;09&#x2F;2011 00:00   All       All        24585    3495</span><br><span class="line">01&#x2F;16&#x2F;2011 00:00   All       All        24618    3553</span><br><span class="line">01&#x2F;23&#x2F;2011 00:00   All       All        24875    3471</span><br><span class="line">01&#x2F;30&#x2F;2011 00:00   All       All        24845    3634</span><br><span class="line">02&#x2F;06&#x2F;2011 00:00   All       All        24528    3391</span><br><span class="line">02&#x2F;13&#x2F;2011 00:00   All       All        24561    3467</span><br><span class="line">02&#x2F;20&#x2F;2011 00:00   All       All        24280    3621</span><br><span class="line">02&#x2F;27&#x2F;2011 00:00   All       All        24614    3507</span><br><span class="line">Group All by Month</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">01&#x2F;01&#x2F;2011 00:00   All       All       109101   15593</span><br><span class="line">02&#x2F;01&#x2F;2011 00:00   All       All        98057   14078</span><br><span class="line">03&#x2F;01&#x2F;2011 00:00   All       All       108231   15308</span><br><span class="line">04&#x2F;01&#x2F;2011 00:00   All       All       106527   15286</span><br><span class="line">05&#x2F;01&#x2F;2011 00:00   All       All       110096   15742</span><br><span class="line">06&#x2F;01&#x2F;2011 00:00   All       All       106354   14982</span><br><span class="line">Group All Summary</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">01&#x2F;01&#x2F;0001 00:00   All       All       638366   90989</span><br><span class="line">Summary By Types</span><br><span class="line">Date               Platform  Size       Views  Clicks</span><br><span class="line">01&#x2F;01&#x2F;0001 00:00   Web       Standard  105615   14983</span><br><span class="line">01&#x2F;01&#x2F;0001 00:00   Web       Enhanced  107740   15448</span><br><span class="line">01&#x2F;01&#x2F;0001 00:00   iOS       Standard  107203   15417</span><br><span class="line">01&#x2F;01&#x2F;0001 00:00   iOS       Enhanced  106457   15117</span><br><span class="line">01&#x2F;01&#x2F;0001 00:00   Android   Standard  104772   14840</span><br><span class="line">01&#x2F;01&#x2F;0001 00:00   Android   Enhanced  106579   15184</span><br></pre></td></tr></table></figure>
+
+<h2 id="Summary-and-Code-Download"><a href="#Summary-and-Code-Download" class="headerlink" title="Summary and Code Download"></a>Summary and Code Download</h2><p>With the static alternatives, we get a lot of spaghetti code that is impossible to maintain, and even if it was, the many GroupBy/Select iterations required for multiple axes result in unnecessary object creation, loops through the data collection, and eventual garbage collection.</p>
+<p>Using the dynamic keyword and a small, reusable trick to enable the dynamic object to generate meaningful hash codes, we can loop through the data collection once.  Our results are just as good, and the next time someone visits this code, they’re much less likely to screw it up.</p>
+<p>The code in this article is fairly fragmented. <a href="/downloads/DynamicReporting.cs.txt">DynamicReporting.cs</a> - Click here to download the full source code.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

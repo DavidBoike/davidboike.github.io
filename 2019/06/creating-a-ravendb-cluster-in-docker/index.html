@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="At Particular we support a bunch of different technologies, so it seems there’s no end to the infrastructure software I might have to use on any given day. SQL Server, RabbitMQ, MongoDB, MySQL, PostgreSQL, MariaDB, even (shudder) Oracle.
+I don’t want all that crap installed on my machine. In fact, I don’t want to install infrastructure on my machine again, like…ever.
+So when I needed to work with a RavenDB cluster, I Dockerized it, and here’s how I did it. Maybe it’s not perfect, maybe it could be better? If you think so, let me know! I feel like I stumbled through this, but the result appears to work well."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Creating a RavenDB cluster in Docker"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="At Particular we support a bunch of different technologies, so it seems there’s no end to the infrastructure software I might have to use on any given day. SQL Server, RabbitMQ, MongoDB, MySQL, PostgreSQL, MariaDB, even (shudder) Oracle.
+I don’t want all that crap installed on my machine. In fact, I don’t want to install infrastructure on my machine again, like…ever.
+So when I needed to work with a RavenDB cluster, I Dockerized it, and here’s how I did it. Maybe it’s not perfect, maybe it could be better? If you think so, let me know! I feel like I stumbled through this, but the result appears to work well."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Creating a RavenDB cluster in Docker - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Creating a RavenDB cluster in Docker</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            June 11, 2019
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>At Particular we support a bunch of different technologies, so it seems there’s no end to the infrastructure software I might have to use on any given day. SQL Server, RabbitMQ, MongoDB, MySQL, PostgreSQL, MariaDB, even (shudder) <em>Oracle</em>.</p>
+<p>I don’t want all that crap installed on my machine. In fact, I don’t want to install infrastructure on my machine again, like…ever.</p>
+<p>So when I needed to work with a RavenDB cluster, I Dockerized it, and here’s how I did it. Maybe it’s not perfect, maybe it could be better? If you think so, let me know! I feel like I stumbled through this, but the result appears to work well.</p>
+<a id="more"></a>
+
+<h2 id="Docker-networking-is-fun"><a href="#Docker-networking-is-fun" class="headerlink" title="Docker networking is fun"></a>Docker networking is fun</h2><blockquote>
+<p><em><strong>NOTE:</strong></em>: It’s helpful to know that I run Windows on macOS with Parallels, and that my Windows host file contains a <code>hostos</code> entry that is always addressable to the Mac, so I can use that like a <code>localhost</code> except it’s locahost on macOS, not on the Windows virtual machine. I hope to blog more about this in the near future.</p>
+</blockquote>
+<p>When dealing with Docker and networking, it seems if you’re not already a network engineer (which I am not) you’re already at a bit of a disadvantage.</p>
+<p>There are two pretty easy modes of operation:</p>
+<ul>
+<li>If you declare mapped ports, you can talk to the application on those ports on localhost without much fuss.</li>
+<li>If you give the containers names, the containers can talk to each other using those names.</li>
+</ul>
+<p>In either case, all the Docker stuff gets its own little island, and you have very defined bridges (the exposed ports) onto that island.</p>
+<p>But a RavenDB cluster has a few different wrinkles. One RavenDB server will normally communicate on port 8080 (HTTP) and port 38888 (TCP), and need to communicate both externally <em>and</em> amongst themselves, but you can’t use the same address for both. This becomes a problem when the Raven cluster gives its internal addresses to the client, which then wants to verify that they’re all alive and can’t even find an address.</p>
+<p>Let me give an example. If you create containers named <code>raven1</code>, <code>raven2</code>, and <code>raven3</code> and set them up as a cluster, <code>raven1</code> can see and talk to <code>raven2</code> and <code>raven3</code>, but then reports those names to the client, in this case code running in Visual Studio, and the Windows environment has no idea how to resolve <code>raven1</code>.</p>
+<p>The Raven team knew this (they are much better at network engineering than me) and provided configuration options to deal with it by providing environment variables:</p>
+<ul>
+<li><code>RAVEN_ServerUrl</code> - The internal port 8080 address. This is always <code>http://0.0.0.0:8080</code>, the 0s mean that it can respond on any host name you throw at it. It’s always port 8080 because this is local to the container - nothing else will be vying for this.</li>
+<li><code>RAVEN_ServerUrl_Tcp</code> - Same deal but for the TCP port. Always <code>tcp://0.0.0.0:38888</code>.</li>
+<li><code>RAVEN_PublicServerUrl</code> - This is the external address for the 8080 address, or in other words, how you’d get onto the Docker island. Here I provide one of the following, one for each node:<ul>
+<li><code>http://hostos:8080</code></li>
+<li><code>http://hostos:8081</code></li>
+<li><code>http://hostos:8082</code></li>
+</ul>
+</li>
+<li><code>RAVEN_PublicServerUrl_Tcp</code> - Same deal but for TCP. Either:<ul>
+<li><code>tcp://hostos:38888</code></li>
+<li><code>tcp://hostos:38889</code></li>
+<li><code>tcp://hostos:38890</code></li>
+</ul>
+</li>
+</ul>
+<p>With this setup of public/private URLs, Raven reports its server topology using the public URLs, which my code is able to look up, and everything just works.</p>
+<h2 id="Docker-compose"><a href="#Docker-compose" class="headerlink" title="Docker compose"></a>Docker compose</h2><p>So given the networking aspects above, running <code>docker-compose up --detach</code> with the contents below in <code>docker-compose.yml</code> ramps up the 3 server nodes:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">version: &#39;3&#39;</span><br><span class="line">services:</span><br><span class="line">  raven1:</span><br><span class="line">    container_name: raven1</span><br><span class="line">    image: ravendb&#x2F;ravendb</span><br><span class="line">    ports:</span><br><span class="line">      - 8080:8080</span><br><span class="line">      - 38888:38888</span><br><span class="line">    extra_hosts:</span><br><span class="line">      - &quot;hostos:10.211.55.2&quot;</span><br><span class="line">    environment:</span><br><span class="line">      - RAVEN_Security_UnsecuredAccessAllowed&#x3D;PublicNetwork</span><br><span class="line">      - RAVEN_Setup_Mode&#x3D;None</span><br><span class="line">      - RAVEN_License_Eula_Accepted&#x3D;true</span><br><span class="line">      - &quot;RAVEN_ServerUrl&#x3D;http:&#x2F;&#x2F;0.0.0.0:8080&quot;</span><br><span class="line">      - &quot;RAVEN_PublicServerUrl&#x3D;http:&#x2F;&#x2F;hostos:8080&quot;</span><br><span class="line">      - &quot;RAVEN_ServerUrl_Tcp&#x3D;tcp:&#x2F;&#x2F;0.0.0.0:38888&quot;</span><br><span class="line">      - &quot;RAVEN_PublicServerUrl_Tcp&#x3D;tcp:&#x2F;&#x2F;hostos:38888&quot;</span><br><span class="line">  raven2:</span><br><span class="line">    container_name: raven2</span><br><span class="line">    image: ravendb&#x2F;ravendb</span><br><span class="line">    ports:</span><br><span class="line">      - 8081:8080</span><br><span class="line">      - 38889:38888</span><br><span class="line">    extra_hosts:</span><br><span class="line">      - &quot;hostos:10.211.55.2&quot;</span><br><span class="line">    environment:</span><br><span class="line">      - RAVEN_Security_UnsecuredAccessAllowed&#x3D;PublicNetwork</span><br><span class="line">      - RAVEN_Setup_Mode&#x3D;None</span><br><span class="line">      - RAVEN_License_Eula_Accepted&#x3D;true</span><br><span class="line">      - &quot;RAVEN_ServerUrl&#x3D;http:&#x2F;&#x2F;0.0.0.0:8080&quot;</span><br><span class="line">      - &quot;RAVEN_PublicServerUrl&#x3D;http:&#x2F;&#x2F;hostos:8081&quot;</span><br><span class="line">      - &quot;RAVEN_ServerUrl_Tcp&#x3D;tcp:&#x2F;&#x2F;0.0.0.0:38888&quot;</span><br><span class="line">      - &quot;RAVEN_PublicServerUrl_Tcp&#x3D;tcp:&#x2F;&#x2F;hostos:38889&quot;</span><br><span class="line">  raven3:</span><br><span class="line">    container_name: raven3</span><br><span class="line">    image: ravendb&#x2F;ravendb</span><br><span class="line">    ports:</span><br><span class="line">      - 8082:8080</span><br><span class="line">      - 38890:38888</span><br><span class="line">    extra_hosts:</span><br><span class="line">      - &quot;hostos:10.211.55.2&quot;</span><br><span class="line">    environment:</span><br><span class="line">      - RAVEN_Security_UnsecuredAccessAllowed&#x3D;PublicNetwork</span><br><span class="line">      - RAVEN_Setup_Mode&#x3D;None</span><br><span class="line">      - RAVEN_License_Eula_Accepted&#x3D;true</span><br><span class="line">      - &quot;RAVEN_ServerUrl&#x3D;http:&#x2F;&#x2F;0.0.0.0:8080&quot;</span><br><span class="line">      - &quot;RAVEN_PublicServerUrl&#x3D;http:&#x2F;&#x2F;hostos:8082&quot;</span><br><span class="line">      - &quot;RAVEN_ServerUrl_Tcp&#x3D;tcp:&#x2F;&#x2F;0.0.0.0:38888&quot;</span><br><span class="line">      - &quot;RAVEN_PublicServerUrl_Tcp&#x3D;tcp:&#x2F;&#x2F;hostos:38890&quot;</span><br></pre></td></tr></table></figure>
+
+<p>Just a few other notes:</p>
+<ul>
+<li><code>extra_hosts</code> defines my macOS host entry on each of the Docker containers as well. Essentially this gives network traffic a way to get off the Docker island and then return.</li>
+<li>There are extra environment variables that make sure I don’t have to go through a lot of Raven setup mumbo-jumbo on each server node. You can look up exactly what they do in the RavenDB documentation.</li>
+</ul>
+<h2 id="Setting-up-the-cluster"><a href="#Setting-up-the-cluster" class="headerlink" title="Setting up the cluster"></a>Setting up the cluster</h2><p>Running <code>docker-compose</code> only gets you so far. When it’s complete you get 3 Raven nodes that aren’t connected in any way, and don’t even have a license applied. In order to set up a cluster you <strong>must</strong> have a license, and it must be applied <strong>only</strong> to the node you intend to be the leader. The remaining nodes are then joined to the already-licensed leader and are allotted a number of assigned cores from the license’s maximum limit. Because a (free) development license allows up to 3 cores, that’s 1 core per node.</p>
+<p>So I actually have a bash script (remember I’m on a Mac) that runs <code>docker-compose</code> and then executes a series of <code>curl</code> commands to configure the cluster.</p>
+<p>First, I apply the license to <code>raven1</code>. This is back to using <code>localhost</code> becuase I execute it on the Mac:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;Applying licenses...&quot;</span><br><span class="line">curl &#39;http:&#x2F;&#x2F;localhost:8080&#x2F;admin&#x2F;license&#x2F;activate&#39; -H &#39;Content-Type: application&#x2F;json; charset&#x3D;UTF-8&#39; --data-binary &#39;&#123;LICENSE_JSON&#125;&#39; --compressed ;</span><br></pre></td></tr></table></figure>
+
+<p>You’ll need to provide your own <code>LICENSE_JSON</code> stripped of any prettified whitespace. However instead of copying my script and trying to do this manually, the easiest way is to do it using RavenDB Studio in Chrome, while watching with Chrome developer tools. On the Network tab, you can take any request, right-click, and get a bunch of options. On Windows, you can copy a request as PowerShell or cURL.</p>
+<p><img src="/images/2019/chrome-network-copy-menu.png" alt="Chrome Debugger Network Right-Click Menu"></p>
+<p>So pick your scripting poison, and then just remove any irrelevant headers. The RavenDB server doesn’t really care what your user agent is.</p>
+<p>Next I want to tell <code>raven1</code>, the cluster leader, that it only gets to use 1 core, in order to leave 2 cores remaining for the rest of the cluster:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;Assigning 1 core for leader node...&quot;</span><br><span class="line">curl &#39;http:&#x2F;&#x2F;localhost:8080&#x2F;admin&#x2F;license&#x2F;set-limit?nodeTag&#x3D;A&amp;newAssignedCores&#x3D;1&#39; -X POST -H &#39;Content-Type: application&#x2F;json; charset&#x3D;utf-8&#39; -H &#39;Content-Length: 0&#39; --compressed ;</span><br></pre></td></tr></table></figure>
+
+<p>And lastly, I want to join <code>raven2</code> and <code>raven3</code> to the cluster as watcher nodes, allotting only 1 assigned core for each. Again, I discovered these URLs using the Chrome network tools. Note that the url-encoded <code>url</code> parameter uses <code>hostos</code> as the host. I don’t know why but using <code>raven2</code> and <code>raven3</code> didn’t work for me. This is also why my compose file needed to specify the <code>extra_hosts</code> parameter:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;Adding raven2 to the cluster...&quot;</span><br><span class="line">curl &#39;http:&#x2F;&#x2F;localhost:8080&#x2F;admin&#x2F;cluster&#x2F;node?url&#x3D;http%3A%2F%2Fhostos%3A8081&amp;watcher&#x3D;true&amp;assignedCores&#x3D;1&#39; -X PUT -H &#39;Content-Type: application&#x2F;json; charset&#x3D;utf-8&#39; -H &#39;Content-Length: 0&#39; --compressed</span><br><span class="line"></span><br><span class="line">echo &quot;Adding raven3 to the cluster...&quot;</span><br><span class="line">curl &#39;http:&#x2F;&#x2F;localhost:8080&#x2F;admin&#x2F;cluster&#x2F;node?url&#x3D;http%3A%2F%2Fhostos%3A8082&amp;watcher&#x3D;true&amp;assignedCores&#x3D;1&#39; -X PUT -H &#39;Content-Type: application&#x2F;json; charset&#x3D;utf-8&#39; -H &#39;Content-Length: 0&#39; --compressed</span><br></pre></td></tr></table></figure>
+
+<p>So putting it all together, assuming Docker is already running on my Mac, here is the script that launches my cluster for me:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;Running docker-compose up&quot;</span><br><span class="line">docker-compose up --detach</span><br><span class="line"></span><br><span class="line">sleep 2</span><br><span class="line"></span><br><span class="line">echo &quot;Applying license...&quot;</span><br><span class="line">curl &#39;http:&#x2F;&#x2F;localhost:8080&#x2F;admin&#x2F;license&#x2F;activate&#39; -H &#39;Content-Type: application&#x2F;json; charset&#x3D;UTF-8&#39; --data-binary &#39;&#123;LICENSE_JSON&#125;&#39; --compressed ;</span><br><span class="line"></span><br><span class="line">echo &quot;Assigning 1 core for leader node...&quot;</span><br><span class="line">curl &#39;http:&#x2F;&#x2F;localhost:8080&#x2F;admin&#x2F;license&#x2F;set-limit?nodeTag&#x3D;A&amp;newAssignedCores&#x3D;1&#39; -X POST -H &#39;Content-Type: application&#x2F;json; charset&#x3D;utf-8&#39; -H &#39;Content-Length: 0&#39; --compressed ;</span><br><span class="line"></span><br><span class="line">echo &quot;Adding raven2 to the cluster...&quot;</span><br><span class="line">curl &#39;http:&#x2F;&#x2F;localhost:8080&#x2F;admin&#x2F;cluster&#x2F;node?url&#x3D;http%3A%2F%2Fhostos%3A8081&amp;watcher&#x3D;true&amp;assignedCores&#x3D;1&#39; -X PUT -H &#39;Content-Type: application&#x2F;json; charset&#x3D;utf-8&#39; -H &#39;Content-Length: 0&#39; --compressed</span><br><span class="line"></span><br><span class="line">echo &quot;Adding raven3 to the cluster...&quot;</span><br><span class="line">curl &#39;http:&#x2F;&#x2F;localhost:8080&#x2F;admin&#x2F;cluster&#x2F;node?url&#x3D;http%3A%2F%2Fhostos%3A8082&amp;watcher&#x3D;true&amp;assignedCores&#x3D;1&#39; -X PUT -H &#39;Content-Type: application&#x2F;json; charset&#x3D;utf-8&#39; -H &#39;Content-Length: 0&#39; --compressed</span><br></pre></td></tr></table></figure>
+
+<p>The result is this in the Cluster view in Raven Studio: A 3-node cluster with one Leader node and two Watcher nodes:</p>
+<p><img src="/images/2019/raven-cluster-view.png" alt="RavenDB Cluster View"></p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>So that’s how you create a 3-node RavenDB cluster in Docker containers. Hopefully it will be useful to somebody. Probably that somebody will be me 6 months from now when I google it and find this post.</p>
+<p>By no means do I find this perfect. If you can do better, please use the <strong>Edit</strong> button at the top of this post and send me a PR!</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

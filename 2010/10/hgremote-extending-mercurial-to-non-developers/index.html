@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="I hear lots of stories about how designers and developers can’t get along. Personally, I don’t get it. I love our web designers. They do something I can’t. I don’t do pretty. I can design a user interface and make it functional, but that’s not enough. Our designers can turn that around and make it gorgeous. We complement each other, and I try to take care of them whenever I can.
+So when we made the leap from self-hosted Subversion to Kiln-hosted Mercurial, I wanted to better integrate our designers in the development process. I wanted them to have the same advantages of version control that I, as a developer, was accustomed to. And I really wanted to put an end to opening directories and finding “default.aspx”, “default - Copy.aspx”, “default - Copy (2).aspx”, etc.
+The problem with Mercurial is that it doesn’t work too well for web designers that don’t have a locally hosted webserver on their workstation. When testing a bunch of CSS changes, an “edit, save, commit, push, refresh, check, repeat as necessary” workflow does not work. Designers need to be able to modify files on a shared design webserver where they can preview their changes immediately and then commit when done with a task.
+Additionally, the designers only need access to the website directory, and attempting to do a 3-way merge makes them run for the hills. And why wouldn’t it - I don’t even enjoy that.
+So like most developers, I figured there must be a way I can fix this problem with software."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="HgRemote: Extending Mercurial to Non-Developers"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="I hear lots of stories about how designers and developers can’t get along. Personally, I don’t get it. I love our web designers. They do something I can’t. I don’t do pretty. I can design a user interface and make it functional, but that’s not enough. Our designers can turn that around and make it gorgeous. We complement each other, and I try to take care of them whenever I can.
+So when we made the leap from self-hosted Subversion to Kiln-hosted Mercurial, I wanted to better integrate our designers in the development process. I wanted them to have the same advantages of version control that I, as a developer, was accustomed to. And I really wanted to put an end to opening directories and finding “default.aspx”, “default - Copy.aspx”, “default - Copy (2).aspx”, etc.
+The problem with Mercurial is that it doesn’t work too well for web designers that don’t have a locally hosted webserver on their workstation. When testing a bunch of CSS changes, an “edit, save, commit, push, refresh, check, repeat as necessary” workflow does not work. Designers need to be able to modify files on a shared design webserver where they can preview their changes immediately and then commit when done with a task.
+Additionally, the designers only need access to the website directory, and attempting to do a 3-way merge makes them run for the hills. And why wouldn’t it - I don’t even enjoy that.
+So like most developers, I figured there must be a way I can fix this problem with software."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>HgRemote: Extending Mercurial to Non-Developers - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>HgRemote: Extending Mercurial to Non-Developers</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            October 11, 2010
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>I hear lots of stories about how designers and developers can’t get along. Personally, I don’t get it. I love our web designers. They do something I can’t. I don’t do pretty. I can design a user interface and make it functional, but that’s not enough. Our designers can turn that around and make it gorgeous. We complement each other, and I try to take care of them whenever I can.</p>
+<p>So when we made the leap from self-hosted Subversion to <a href="http://fogcreek.com/kiln/" target="_blank" rel="noopener">Kiln-hosted Mercurial</a>, I wanted to better integrate our designers in the development process. I wanted them to have the same advantages of version control that I, as a developer, was accustomed to. And I really wanted to put an end to opening directories and finding “default.aspx”, “default - Copy.aspx”, “default - Copy (2).aspx”, etc.</p>
+<p>The problem with Mercurial is that it doesn’t work too well for web designers that don’t have a locally hosted webserver on their workstation. When testing a bunch of CSS changes, an “edit, save, commit, push, refresh, check, repeat as necessary” workflow does not work. Designers need to be able to modify files on a shared design webserver where they can preview their changes immediately and then commit when done with a task.</p>
+<p>Additionally, the designers only need access to the website directory, and attempting to do a 3-way merge makes them run for the hills. And why wouldn’t it - I don’t even enjoy <em>that</em>.</p>
+<p>So like most developers, I figured there must be a way I can fix this problem with software.</p>
+<a id="more"></a>
+
+<h4 id="Introducting-HgRemote"><a href="#Introducting-HgRemote" class="headerlink" title="Introducting HgRemote"></a>Introducting HgRemote</h4><p>I started a <a href="http://hgremote.codeplex.com/" target="_blank" rel="noopener">new open source project</a> (under the Apache License 2.0) called HgRemote. It’s a client/server application that communicates via WCF.</p>
+<p><img src="/images/hgremote.png" alt="HgRemote Screenshot" title="HgRemote Screenshot"></p>
+<p>The client application is designed to mimic the TortoiseHg commit window. Developers familiar with TortoiseHg will have a built-in familiarity with it which will help when training in or helping non-developers.</p>
+<p>The server application can be easily installed as a service, thanks to the <a href="http://topshelf-project.com/" target="_blank" rel="noopener">Topshelf Project</a>, and performs command-line Mercurial tasks on behalf of the client application.</p>
+<p>The interface allows users to commit, add, forget, visual diffs, and even push, pull, and perform custom configured tasks.</p>
+<p>HgRemote is NOT a fully-featured Mercurial client, or even really a finished product. It doesn’t even have an application icon! However, it does provide the most useful, basic subset of commands to allow a non-developer to participate fully in a development team, and it has lots of room to grow.</p>
+<p>Please, check out the project at <a href="http://hgremote.codeplex.com/" target="_blank" rel="noopener">http://hgremote.codeplex.com/</a>, take it for a test drive. If you like it, fork it and add a new feature.</p>
+<p>Just a few possibilities:</p>
+<ul>
+<li>File/repository status</li>
+<li>Add preferences for WCF network credentials. Currently either client and server must be in the same domain, or the binding transport security must be set to None in the WCF configuration.</li>
+<li>Add an application icon!</li>
+<li>Enable parameters on Tasks.</li>
+<li>Enable additional contextual menu items in file list that are available in TortoiseHg.</li>
+<li>Many more…</li>
+</ul>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

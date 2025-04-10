@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="When presenting my Distributed Application Development with NServiceBus talk at the Twin Cities Code Camp 10, I was asked by an attendee why NServiceBus’s automated retry feature doesn’t have some sort of a delay or back-off algorithm.  Unfortunately I had never really thought about it, and I didn’t have a very good answer for him.
+This week I have the good fortune to be attending Udi Dahan’s Advanced Distributed System Design course in New York, so I thought I would get the answer direct from the source.
+Udi gave me several good reasons why this is intentionally left out of NServiceBus.  I’ll try to convey his answers and add my own thoughts as well."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="NServiceBus Retries: Why no back-off delay?"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="When presenting my Distributed Application Development with NServiceBus talk at the Twin Cities Code Camp 10, I was asked by an attendee why NServiceBus’s automated retry feature doesn’t have some sort of a delay or back-off algorithm.  Unfortunately I had never really thought about it, and I didn’t have a very good answer for him.
+This week I have the good fortune to be attending Udi Dahan’s Advanced Distributed System Design course in New York, so I thought I would get the answer direct from the source.
+Udi gave me several good reasons why this is intentionally left out of NServiceBus.  I’ll try to convey his answers and add my own thoughts as well."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>NServiceBus Retries: Why no back-off delay? - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>NServiceBus Retries: Why no back-off delay?</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            April 12, 2011
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>When presenting my <a href="/presentations/">Distributed Application Development with NServiceBu</a>s talk at the <a href="http://www.twincitiescodecamp.com" target="_blank" rel="noopener">Twin Cities Code Camp 10</a>, I was asked by an attendee why NServiceBus’s automated retry feature doesn’t have some sort of a delay or back-off algorithm.  Unfortunately I had never really thought about it, and I didn’t have a very good answer for him.</p>
+<p>This week I have the good fortune to be attending <a href="http://www.udidahan.com" target="_blank" rel="noopener">Udi Dahan’s</a> <a href="http://www.udidahan.com/training/#Advanced_Distributed_System_Design" target="_blank" rel="noopener">Advanced Distributed System Design</a> course in New York, so I thought I would get the answer direct from the source.</p>
+<p>Udi gave me several good reasons why this is intentionally left out of NServiceBus.  I’ll try to convey his answers and add my own thoughts as well.</p>
+<a id="more"></a>
+
+<h3 id="Why-would-you-want-a-delay-in-the-first-place"><a href="#Why-would-you-want-a-delay-in-the-first-place" class="headerlink" title="Why would you want a delay in the first place?"></a>Why would you want a delay in the first place?</h3><p> I think the normal story would revolve around the assumption (perhaps incorrect) that if two threads experience transient exceptions (the canonical example being a database deadlock) and then both instantly retry, the same error is going to happen again.  Both messages will then go to the error queue, where if each had just waited to not step on each other’s toes, there would have been no issue.</p>
+<p>Of course if you wait the same amount of milliseconds on both threads, you’re just as likely to have the same problem, right?  So this feature would also need to randomize the delay somehow, so that on successive retries, the two offenders are less likely to be bothersome.</p>
+<p>Let’s just assume for the moment that this is true.  Why might this not be a good thing?</p>
+<h3 id="1-Introducing-a-delay-will-slow-down-processing"><a href="#1-Introducing-a-delay-will-slow-down-processing" class="headerlink" title="1. Introducing a delay will slow down processing."></a>1. Introducing a delay will slow down processing.</h3><p> Well duh, this seems rather obvious.  If a thread spends time sleeping, it is (by definition) not processing the next message. Obviously we don’t want to build systems that go slower than the theoretical maximum <strong>on purpose</strong>. We want our systems to run as fast as possible. There are enough limitations imposed on us by the rest of the universe before we bother introducing our own.</p>
+<p>But we could work around this, right?  We could make the delay zero by default.  We could make it configurable.  Then if we follow advice to have one message type processed per endpoint, we could effectively control the back-off on a per-message-type basis.</p>
+<h3 id="2-It-overcomplicates-things"><a href="#2-It-overcomplicates-things" class="headerlink" title="2. It overcomplicates things"></a>2. It overcomplicates things</h3><p> As I said before, not only would you need a delay, you’d need a delay that was configurable and randomized.  That’s a lot of configuration for a fairly edge case.  Do we really need it?  We already have an error queue to deal with persistent errors.  We already have a tool to return error messages back to their source queue.  Why do we need a whole lot of other infrastructure when we already have good tools to deal with these issues?</p>
+<h3 id="3-It-has-no-business-value"><a href="#3-It-has-no-business-value" class="headerlink" title="3. It has no business value"></a>3. It has no business value</h3><p> Let’s face it.  No business stakeholder has come to you and said that we need a configurable randomized back-off mechanism in our messaging infrastructure. This is something that we as developers have thought up all on our own and adds no business value to the system.  So do we really need it?  Or should we stick with the simplest thing that works?</p>
+<p>Now, there might be exceptions where a back-off mechanism can have business value and purpose.  Yves Goeleven explains how <a href="https://cloudshaper.wordpress.com/2010/11/06/operational-costs-of-an-azure-message-queue/" target="_blank" rel="noopener">a back-off mechanism can be valuable when dealing with Azure Message Queue</a>, where every interaction with the Azure API costs you money.  In this situation (specifically when retrieving messages off the Azure queue) it doesn’t make sense to ask the server if there are new messages as fast as possible, because we begin to pay through the nose to do nothing at all.</p>
+<p>However, talking to local MSMQ is basically free.  Given that, let’s do it as fast as possible.</p>
+<h3 id="4-It-hides-problems"><a href="#4-It-hides-problems" class="headerlink" title="4. It hides problems"></a>4. It hides problems</h3><p> In my opinion, this is the best argument against a back-off mechanism, because it attacks the basic assumption that having semi-transient errors arriving in the error queue is a bad thing.</p>
+<p>Why is that a bad thing exactly?</p>
+<p>Exceptions aren’t bad things.  Exceptions speak to us.  Some are a fact of life.  They will happen once in awhile, and our retry mechanism will take care of that.  The rest will arrive in the error queue, and then we can find the cause and deal with it.</p>
+<p>So the issue seems to be that errors are showing up in the error queue that, for some reason, <em>we don’t think should be there</em>.  Its very arrival has annoyed us in some way.  “That’s a deadlock,” we say, “and the retry should have taken care of that?”</p>
+<p>Maybe instead we should ask ourselves why something supposedly so transient has made it through X retries and arrived in our error queue.  Maybe this means that a deadlock (or whatever the exception happens to be) is really more common than we think in this situation, and it deserves a closer look.</p>
+<h3 id="There-are-other-ways-to-deal-with-this"><a href="#There-are-other-ways-to-deal-with-this" class="headerlink" title="There are other ways to deal with this"></a>There are other ways to deal with this</h3><p> We already have an error queue to deal with errors, and this is a queue like any other.  Let’s use that to our advantage.</p>
+<p>Let’s say the error is not transient (within a short time window) but also not something we can “fix”.  Maybe it’s our client’s fault.  Maybe they sent us an RSS feed with an image URL that we cannot download, because the client’s server is down.</p>
+<p>In this situation, an automated back-off of a few milliseconds probably isn’t going to help anyway.  Maybe in 5 minutes or a half hour it will work, but certainly not 10-100ms later.</p>
+<p>With a clear business case for an error condition in hand, we can create a handler on the error queue and take some business-appropriate action on that error message.  We could store it for a set amount of time and then return it to the source queue.  We could email the client that we’re having difficulty and then swallow the message.  What we actually do doesn’t matter; the point is that it is now a functional requirement with real business value, and we can implement it easily enough with existing tools.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

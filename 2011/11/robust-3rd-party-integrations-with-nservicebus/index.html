@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="A common question about NServiceBus is how to use it to integrate with an external partner. The requirements usually go something like this:
+
+The third party will contact us via a web service, passing us a transaction identifier and a collection of fields.
+If we successfully receive the message in the web service, we respond with a HTTP 200 OK status code.  If they do not receive the acknowledgement, they will assume a failure and attempt to retry the web service later.
+Once we receive the message from the third party, we need to distribute (think publish) the contents of the message to more than one internal process, each of which are completely independent of each other.
+We need to logically receive each message once and only once. In other words, it would be a “Very Bad Thing” for one of the internal subscribing processes to receive the same notification more than once.
+
+This was most recently asked in this StackOverflow question, where it became difficult to explain more within the 600 character comment limit. The best explanation is example code, so here it is."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Robust 3rd Party Integrations with NServiceBus"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="A common question about NServiceBus is how to use it to integrate with an external partner. The requirements usually go something like this:
+
+The third party will contact us via a web service, passing us a transaction identifier and a collection of fields.
+If we successfully receive the message in the web service, we respond with a HTTP 200 OK status code.  If they do not receive the acknowledgement, they will assume a failure and attempt to retry the web service later.
+Once we receive the message from the third party, we need to distribute (think publish) the contents of the message to more than one internal process, each of which are completely independent of each other.
+We need to logically receive each message once and only once. In other words, it would be a “Very Bad Thing” for one of the internal subscribing processes to receive the same notification more than once.
+
+This was most recently asked in this StackOverflow question, where it became difficult to explain more within the 600 character comment limit. The best explanation is example code, so here it is."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Robust 3rd Party Integrations with NServiceBus - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Robust 3rd Party Integrations with NServiceBus</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            November 3, 2011
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>A common question about NServiceBus is how to use it to integrate with an external partner. The requirements usually go something like this:</p>
+<ul>
+<li>The third party will contact us via a web service, passing us a transaction identifier and a collection of fields.</li>
+<li>If we successfully receive the message in the web service, we respond with a HTTP 200 OK status code.  If they do not receive the acknowledgement, they will assume a failure and attempt to retry the web service later.</li>
+<li>Once we receive the message from the third party, we need to distribute (think publish) the contents of the message to more than one internal process, each of which are completely independent of each other.</li>
+<li>We need to logically receive each message once and only once. In other words, it would be a “Very Bad Thing” for one of the internal subscribing processes to receive the same notification more than once.</li>
+</ul>
+<p>This was most recently asked in <a href="http://stackoverflow.com/questions/7768464/nservicebus-design-ideas/" target="_blank" rel="noopener">this StackOverflow question</a>, where it became difficult to explain more within the 600 character comment limit. The best explanation is example code, so here it is.</p>
+<a id="more"></a>
+
+<p>Check out <a href="https://github.com/DavidBoike/NServiceBus-External-WebService-Example" target="_blank" rel="noopener">NServiceBus External WebService Example on GitHub</a>. Here is a high-level overview of the project:</p>
+<ul>
+<li><p><strong>WebServiceHost</strong></p>
+<ul>
+<li>This project implements a simple ASMX web service.</li>
+<li>The web request information is translated into an NServiceBus command message, and then Sent on the Bus.</li>
+</ul>
+</li>
+<li><p><strong>TestClient</strong></p>
+<ul>
+<li>This console app project tests invoking the web service using a standard .NET web service proxy. No NServiceBus to be found here.</li>
+</ul>
+</li>
+<li><p><strong>InternalService</strong></p>
+<ul>
+<li>An NServiceBus endpoint containing a Saga that receives the NServiceBus message from the web service.</li>
+<li>Even if the web service received the message successfully, we can’t know that our partner’s server didn’t fail before they received, or were able to record the acknowledgement, or that a network failure didn’t prevent our reply from arriving at all.</li>
+<li>Because of this, it’s possible that our partner may retry sending the message even though we’ve already received it once.  This means we may receive duplicate messages, and we need to insulate our internal processes from that.<ul>
+<li>To do that, we accept and publish an event corresponding to the first message received.  We also store the fact that we received that message in saga data so that we will know to ignore any duplicate messages.</li>
+<li>We also request a timeout notification from the Timeout Manager so that after some reasonable period (after we know the partner could no longer possibly be retrying) we can clean up the saga data.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>InternalService.Messages</strong></p>
+<ul>
+<li><p>This assembly contains all the message schema for the project, including:</p>
+<ul>
+<li>ExternalServiceMsg – the web service sends this to InternalService.</li>
+<li>IExternalMessageReceivedEvent – the event that is published upon receipt of a non-duplicated ExternalServiceMsg. We are using an interface to define the event, which is recommended as it <a href="http://www.nservicebus.com/MessagesAsInterfaces.aspx" target="_blank" rel="noopener">enables easier versioning later on thanks to an interface’s multiple inheritance abilities</a>.</li>
+<li>ExternalServiceSagaData – this defines the state data our saga will use to keep track of which messages it has received.</li>
+</ul>
+</li>
+<li><p>Note that it is probably <em>NOT</em> best practice to keep all these things in the same assembly.  Udi would probably recommend that the command and saga data (which are internal to the logical service) be segregated from the event (which forms the external contract for the service).</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Subscriber1</strong> and <strong>Subscriber2</strong></p>
+<ul>
+<li>These endpoints subscribe to the IExternalMessageReceivedEvent and pump some info to the Console so that we can watch it happen.</li>
+</ul>
+</li>
+<li><p><strong>ExampleTimeoutManager</strong></p>
+<ul>
+<li>For active development, you should probably just keep a Timeout Manager running as a service on your development machine, but this is provided to keep the example self-contained and as an example of how to configure the <a href="http://www.nuget.org/List/Packages/NServiceBus.TimeoutManager" target="_blank" rel="noopener">Timeout Manager package available from NuGet</a>.  I used a fairly nonstandard queue name so that it won’t conflict if you do already have a running timeout manager on your system.</li>
+</ul>
+</li>
+</ul>
+<p>The project uses the following NuGet packages to make it as easy as possible to get started:</p>
+<ul>
+<li><p><a href="http://nuget.org/List/Packages/Log4Net" target="_blank" rel="noopener">Log4Net</a>, as a dependency of NServiceBus.</p>
+</li>
+<li><p><a href="http://nuget.org/List/Packages/NServiceBus" target="_blank" rel="noopener">NServiceBus</a> – for the core NServiceBus DLLs.</p>
+<ul>
+<li>A messages assembly, however, doesn’t need NServiceBus.Core.dll or Log4Net.dll, so you can just “Install-Package NServiceBus” on this assembly and then manually remove those two references.</li>
+</ul>
+</li>
+<li><p>NServiceBus.Host – for the InternalService endpoint.</p>
+</li>
+<li><p><a href="http://nuget.org/List/Packages/NServiceBus.TimeoutManager" target="_blank" rel="noopener">NServiceBus.TimeoutManager</a></p>
+</li>
+</ul>
+<p>The project also uses the <a href="http://www.nuget.org/List/Packages/NuGetPowerTools" target="_blank" rel="noopener">NuGetPowerTools</a> package to automatically download all the required packages when you build the solution <a href="http://blog.davidebbo.com/2011/08/easy-way-to-set-up-nuget-to-restore.html" target="_blank" rel="noopener">as described in this article from David Ebbo</a>.  I highly recommend it.</p>
+<h3 id="Updates-November-11-2013-–-NServiceBus-4-2"><a href="#Updates-November-11-2013-–-NServiceBus-4-2" class="headerlink" title="Updates November 11, 2013 – NServiceBus 4.2"></a>Updates November 11, 2013 – NServiceBus 4.2</h3><p>It has been almost 2 years since I originally wrote this blog post, and Mark Holdt asked in the comments if there was anything I would do different now? Based on the passage of time and the changes from NServiceBus 2.6 (in which the code was originally written) to today’s current version of 4.2, yes there are quite a few things that would be different.</p>
+<p>Hopefully I’ll get a chance soon to update this code, but until then, here are some things that would be different today:</p>
+<p>As of V4, NServiceBus no longer has a dependency on log4net, so I would probably remove that dependency and use the built-in NServiceBus.Logging namespace (which is an API copy of log4net) instead. If I wanted to use log4net or NLog I could drop that in, but it’s much easier to just keep the example simple.</p>
+<p>There would be no external timeout manager. As of V3, the timeout manager is integrated with the NServiceBus Host.</p>
+<p>Obviously some API changed from NServiceBus 2.6 to 4.2. Off the top of my head:</p>
+<ul>
+<li>MsmqTransportConfig to set the input/error queues, number of worker threads, and max retries is now deprecated and replaced by some different sections that are more accurate based on MSMQ not being the only transport available anymore. I’m pretty sure the runtime warnings would provide pretty good pointers on what to update.</li>
+<li>The Timeout API has changed to reflect that you don’t have to send timeout messages anywhere – it’s handled by the internal timeout manager much more cleanly.</li>
+</ul>
+<p>In the original the saga data is in the InternalService.Messages assembly. My thinking on this has changed quite a bit in the past 2 years. Saga data is the storage for the saga and completely internal to its implementation. Nobody else has any business knowing anything about it! Therefore I would put it in the same assembly as the saga itself (InternalService) potentially even as a nested class inside the Saga.</p>
+<p>The web service: Now that Microsoft has <a href="http://johnwsaunders3.wordpress.com/2009/07/03/microsoft-says-asmx-web-services-are-a-%E2%80%9Clegacy-technology%E2%80%9D/" target="_blank" rel="noopener">officially declared ASMX web services to be a “legacy technology”</a> it is hard to recommend their use anywhere. I really didn’t mind ASMX services at all and I <em>really</em> despise WCF. Therefore I would try to implement the web service with WebAPI if possible, or even as a vanilla ASP.NET MVC action method. It would really depend upon the external partner’s abilities.</p>
+<p>Other than these things, everything remains pretty much the same. The overall concept of how to handle this situation with messaging, after all, is still sound.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

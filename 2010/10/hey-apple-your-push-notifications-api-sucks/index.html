@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="I’ve been an Apple fanboy for years. I grew up programming in BASIC on an Apple IIGS. I love my iPhone to death. However, I am not a member of the Church of Jobs that believes Steve can do no wrong. Now I’m a software developer and I appreciate a good, clean, easy to use API, and Apple falls short.
+But fear not Apple! You may already have two push notification command formats on the books, but keep reading and I’ll suggest a third that won’t leave developers frustrated and angry with you."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Hey Apple, Your Push Notifications API Sucks"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="I’ve been an Apple fanboy for years. I grew up programming in BASIC on an Apple IIGS. I love my iPhone to death. However, I am not a member of the Church of Jobs that believes Steve can do no wrong. Now I’m a software developer and I appreciate a good, clean, easy to use API, and Apple falls short.
+But fear not Apple! You may already have two push notification command formats on the books, but keep reading and I’ll suggest a third that won’t leave developers frustrated and angry with you."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Hey Apple, Your Push Notifications API Sucks - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Hey Apple, Your Push Notifications API Sucks</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            October 19, 2010
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>I’ve been an Apple fanboy for years. I grew up programming in BASIC on an Apple IIGS. I love my iPhone to death. However, I am not a member of the Church of Jobs that believes Steve can do no wrong. Now I’m a software developer and I appreciate a good, clean, easy to use API, and Apple falls short.</p>
+<p>But fear not Apple! You may already have two push notification command formats on the books, but keep reading and I’ll suggest a third that won’t leave developers frustrated and angry with you.</p>
+<a id="more"></a>
+
+<h3 id="Basics"><a href="#Basics" class="headerlink" title="Basics"></a>Basics</h3><p>The process for sending push notifications is described in Apple’s <a href="http://developer.apple.com/library/ios/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingWIthAPS/CommunicatingWIthAPS.html" target="_blank" rel="noopener">Local and Push Notification Programming Guide: Provider Communication with Apple Push Notification Service</a>.</p>
+<p>The service requires you to export a certificate from Apple’s Keychain, and use it to authenticate a secure TCP stream. The commands you send to the stream must be encoded down to the binary level, paying attention to endianness, something I haven’t even really thought about since school. That’s not what annoys me, however. I understand byte encodings and I can slap together byte arrays pretty well. I understand that going down to such a low level with so little overhead probably allows for some pretty incredible speed benefits. Since the iOS platform seems to be doing pretty well, I can’t begrudge Apple developers from trying to scale their system as effectively as possible.</p>
+<p>The problem is that systems need feedback to correct for errors, and Apple gives little or none.</p>
+<h3 id="Method-1-Simple-Notification-Format"><a href="#Method-1-Simple-Notification-Format" class="headerlink" title="Method 1: Simple Notification Format"></a>Method 1: Simple Notification Format</h3><p>Once the TCP stream is established, Apple waits (impatiently) for you to send one or more push notification commands, and (wisely) prefers that you send several in the same batch to cut down on the connect/disconnect overhead. A single command using the Simple Notification Format looks like this at the byte level:</p>
+<p><img src="/images/aps_provider_binary.jpg" alt="Apple Simple Notification Format"></p>
+<p>The problem, as I mentioned, is feedback. You don’t get any. Apple wants you to send as many notifications in one batch as possible. If you do something wrong, Apple will silently drop the connection. The problem is the connection is asynchronous. If in the middle of a batch of 50 notifications, Notification #23 is invalid, you may send several more notifications before the connection is dropped. Worse, the whole batch isn’t atomically accepted or denied. Notifications #1-22 will be delivered. How do you know which notification was to blame, or how to retry items #24-50?</p>
+<p>The answer is you can’t. Do I really have to wait 500ms between each send to make sure the connection doesn’t drop in the meantime? If I need to send 1000 notifications, that would take over 8 minutes, and it shouldn’t have to.</p>
+<h3 id="Enhanced-Notification-Format"><a href="#Enhanced-Notification-Format" class="headerlink" title="Enhanced Notification Format"></a>Enhanced Notification Format</h3><p>I’m fairly certain that the Simple Notification Format was Apple’s first attempt, and that the Enhanced Notification Format was devised to address some of the shortcomings of the first. I have no proof of this or information on which came when, although it would seem to make sense as I’ve described it.</p>
+<p>In any case, the Enhanced format claims to offer the following advantages:</p>
+<ul>
+<li>Notification Expiration</li>
+<li>Error Response … kind of</li>
+</ul>
+<p>The expiration is good; no complaints there. It’s the error response that misses the mark.</p>
+<p>Here is what the Enhanced Notification Format looks like:</p>
+<p><img src="/images/aps_binary_provider_2.jpg" alt="Apple Enhanced Notification Format"></p>
+<p>Like the simple format, if all is well, no response from Apple. If something is awry, however, Apple promises to send you a response in this format before severing the connection:</p>
+<p><img src="/images/aps_binary_error.jpg" alt="Apple Enhanced Format Error Response"></p>
+<p>This would appear to solve all the problems, but it turns out to be exceedingly difficult to use.</p>
+<p>Like the simple format, the asynchronous nature of the connection means you aren’t guaranteed to receive the error response directly after the offending command. This makes the identifier extremely important. In my opinion, it makes most sense to arrange an array of notifications to be sent as a batch, and then assign an identifier to each one equal to the index order in the array. This way, if you get the error response, it makes it easy to find the offender, and start another connection to retry those that come after.</p>
+<p>That is, if you can get the error response. In most programming languages, blocking, synchronous reads and writes are the norm. Assuming a successful notification, Apple will not respond, meaning you cannot call Read on the stream, because that would block, and then you can’t send the rest of the notifications.</p>
+<p>It is possible to do this. After a full day of frustration and hand-wringing, I was able to make it work, but it requires WAY too much work. I hope to blog about this soon, but my solution involved asynchronous reads and a ManualResetEvent in order to keep everything in check. It shouldn’t be that hard!</p>
+<h3 id="Proposed-Push-Notification-Format"><a href="#Proposed-Push-Notification-Format" class="headerlink" title="Proposed Push Notification Format"></a>Proposed Push Notification Format</h3><p>Let me be clear. <strong>This does not really exist.</strong> This is my suggestion to the engineers at Apple for a third notification format. I don’t have the patience to create the nifty byte block diagrams, but hopefully this will get the point across.</p>
+<ul>
+<li>Command - 1 byte = The value 2 seems to be open.</li>
+<li>Count - 4 bytes, big endian encoded integer - the number of notifications you intend to send in this batch. Apple would set some sensible limits for this and then clearly document it.</li>
+<li>The current enhanced notification format, or something very much like it, repeated as many times as you claimed you would previously.</li>
+</ul>
+<p>After the last batch command is sent, Apple would always respond! This would allow the sending application to do an easy blocking Read operation in order to retrieve the following:</p>
+<ul>
+<li>Status - 1 byte - A simple acknowledgment status code. A value of 0 would indicate that everything was successful and all push notifications in the batch were accepted. Other codes would indicate whether some notifications at all were sent, or if the entire conversation was gibberish that Apple will not accept.</li>
+<li>Number of command error responses - 4 bytes - big-endian encoded integer - If this value was greater than zero, it would indicate that there are status responses for individual commands, i.e. some notifications went through, and Apple is about to give you information about all of the ones that didn’t.</li>
+<li>The current enhanced notification error response, repeated as many times as the error count indicated previously. Because the application already was able to read how many to expect, it can again do blocking reads to receive each one, after which both client and server understand that the conversation for this batch is over. If there were no errors, Apple could leave the connection open, which would enable the application to send another 2 command to initiate another batch.</li>
+</ul>
+<p>So that is my suggestion. I think it provides more ease of use to the application developer (regardless of programming language) and would maintain the speed and scalability that I’m sure is a rigid requirement on the Cupertino campus. At least I think so - it’s not like they’re letting me peek at their source code.</p>
+<p>Apple, the ball is in your court. Hopefully someone over there notices and takes it to heart!</p>
+<p>Have an idea for how to improve the protocol further? Let me know!</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

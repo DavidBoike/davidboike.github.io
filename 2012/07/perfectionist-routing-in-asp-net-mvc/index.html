@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="I’m not one to accept /{ControllerName}/{ActionName} for my routes. Like a few members of the Stack Exchange team, I’m far too anal retentive about my routes to let Microsoft just handle it for me.
+To this end, I use the excellent Attribute Routing project which is also available on NuGet: just type Install-Package AttributeRouting into the Package Manager and you’re ready to decorate your methods with route attributes like this:"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Perfectionist Routing in ASP.NET MVC"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="I’m not one to accept /{ControllerName}/{ActionName} for my routes. Like a few members of the Stack Exchange team, I’m far too anal retentive about my routes to let Microsoft just handle it for me.
+To this end, I use the excellent Attribute Routing project which is also available on NuGet: just type Install-Package AttributeRouting into the Package Manager and you’re ready to decorate your methods with route attributes like this:"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Perfectionist Routing in ASP.NET MVC - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Perfectionist Routing in ASP.NET MVC</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            July 2, 2012
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>I’m not one to accept <code>/{ControllerName}/{ActionName}</code> for my routes. <a href="http://kevinmontrose.com/2011/07/25/why-i-love-attribute-based-routing/" target="_blank" rel="noopener">Like a few members of the Stack Exchange team</a>, I’m far too anal retentive about my routes to let Microsoft just handle it for me.</p>
+<p>To this end, I use the excellent <a href="https://github.com/mccalltd/AttributeRouting" target="_blank" rel="noopener">Attribute Routing project</a> which is also <a href="http://nuget.org/packages/AttributeRouting" target="_blank" rel="noopener">available on NuGet</a>: just type Install-Package AttributeRouting into the Package Manager and you’re ready to decorate your methods with route attributes like this:</p>
+<a id="more"></a>
+
+<pre><code>[GET(&quot;some-action/{id}&quot;)]
+public ActionResult SomeActionMethod(int id)
+{
+    return View();
+}</code></pre><p>A lot more than this is possible; for more details check out the <a href="https://github.com/mccalltd/AttributeRouting/wiki" target="_blank" rel="noopener">AttributeRouting project wiki</a>. Another nice feature during development time is the additional route “~/routes.axd” which shows you, in order, all the routes registered in your application (not just those registered by attributes) and gives you a lot of information that’s very helpful when debugging a routing problem.</p>
+<p>All the benefits of attribute based routing aside, the problem quickly becomes that pesky default route. If you accidentally misspell a controller or action name in an ActionLink or other helper, you will get a URL that uses that default path due to this entry in the routes configuration in the Global.asax.cs:</p>
+<pre><code>routes.MapRoute(
+    &quot;Default&quot;, // Route name
+    &quot;{controller}/{action}/{id}&quot;, // URL with parameters
+    new { controller = &quot;Home&quot;, action = &quot;Index&quot;, id = UrlParameter.Optional } // Parameter defaults
+);</code></pre><p>I don’t want my ActionLinks to use this default route. If it does, they’re wrong! I want to find out through an exception that I can easily detect during development, not by silently outputting a route that doesn’t work.</p>
+<p>So why not just get rid of the default route? Not so fast. If you do that, when you try to use the HtmlHelper’s RenderAction extension method, you’ll get the following exception:</p>
+<blockquote>
+<p><strong>System.InvalidOperationException</strong>: No route in the route table matches the supplied values.</p>
+</blockquote>
+<p> When you call out to that child action, the system is looking in the routing table to figure out which controller and action to send the request to. The fact that no route URL is necessary (or even applicable) for a child action really doesn’t matter at all. I haven’t reflected deeply enough to confirm this, but it feels like the child action features of MVC were bolted on in one of the later releases of MVC (either Version 2 or 3 – I didn’t start using the framework until MVC 3.)</p>
+<p>In any case, it is possible to circumvent this problem and get exceptions thrown on unknown routes. To do it requires a 2-step process:</p>
+<ol>
+<li>Add mappings for all child routes (identified by the [ChildActionOnly] attribute) in the route table.</li>
+<li>Add a final catch-all route that throws an exception when you try to use it.</li>
+</ol>
+<h2 id=""><a href="#" class="headerlink" title=""></a></h2><h2 id="Mapping-Child-Routes"><a href="#Mapping-Child-Routes" class="headerlink" title="Mapping Child Routes"></a>Mapping Child Routes</h2><p> In order to map all child routes, you need to be militant about marking all your child-only actions (or entire child-action-only controllers) with the [ChildActionOnly] attribute, but I consider that to be good practice anyway. In fact, it would be an excellent idea to create a unit test to reflect all controllers and ensure they are either decorated with either a [ChildActionOnly] attribute or one of the AttributeRouting attributes. Perhaps I will demonstrate that in a future post.</p>
+<p>Finding all the child actions just requires a little bit of reflection. This extension method makes it easy to reflect through all the controllers in a single assembly:</p>
+<pre><code>public static void MapChildOnlyActionRoutesFrom(this RouteCollection routes, Assembly assembly)
+{
+    foreach (Type t in assembly.GetTypes().Where(t =&gt; !t.IsAbstract &amp;&amp; typeof(IController).IsAssignableFrom(t)))
+    {
+        bool allChildOnly = t.GetCustomAttributes(typeof(ChildActionOnlyAttribute), true).Any();
+        foreach (MethodInfo m in t.GetMethods())
+        {
+            if (m.IsPublic &amp;&amp; typeof(ActionResult).IsAssignableFrom(m.ReturnType))
+            {
+                if (allChildOnly || m.GetCustomAttributes(typeof(ChildActionOnlyAttribute), true).Any())
+                {
+                    string controller = t.Name;
+                    string action = m.Name;
+                    if (controller.EndsWith(&quot;Controller&quot;))
+                        controller = controller.Substring(0, controller.Length - 10);
+                    string name = String.Format(&quot;ChildAction/{0}/{1}&quot;, controller, action);
+                    var constraints = new
+                    {
+                        controller = controller,
+                        action = action
+                    };
+                    routes.MapRoute(name, String.Empty, null, constraints);
+                }
+            }
+        }
+    }
+}</code></pre><p>One area for improvement would be handling asynchronous controller actions, where matching ActionNameAsync and ActionNameCompleted methods would need to be identified, where the first would be marked with the attribute and return void, and the second would not be decorated but return the ActionResult.</p>
+<h2 id="Catch-All-Route"><a href="#Catch-All-Route" class="headerlink" title="Catch-All Route"></a>Catch-All Route</h2><p> Next, we just need the catch-all route to throw exceptions on unknown routes, which is implemented as a class inheriting from Route and an extension method to enable it to be easily applied in the Global.asax.cs:</p>
+<pre><code>public static void MapCatchAllErrorThrowingDefaultRoute(this RouteCollection routes)
+{
+    routes.Add(&quot;Default&quot;, new RestrictiveCatchAllDefaultRoute());
+}
+public class RestrictiveCatchAllDefaultRoute : Route
+{
+    public RestrictiveCatchAllDefaultRoute()
+        : base(&quot;*&quot;, new MvcRouteHandler())
+    {
+        DataTokens = new RouteValueDictionary(new { warning = &quot;routes.MapCatchAllErrorThrowingDefaultRoute() must be the very last mapped route because it will catch everything and throw exceptions!&quot; });
+    }
+    public override VirtualPathData GetVirtualPath(RequestContext requestContext, RouteValueDictionary values)
+    {
+        string valueDebug = String.Join(String.Empty, values.Select(p =&gt; String.Format(&quot;\r\n{0} = {1}&quot;, p.Key, p.Value)).ToArray());
+        throw new InvalidOperationException(&quot;Unable to find a valid route for the following route values:&quot; + valueDebug);
+    }
+}</code></pre><p>Note the DataTokens, which is visible in AttributeRouting’s route debugging handler, that reminds you that it must be the last route.</p>
+<p>Then, just apply these both in the Global.asax.cs:</p>
+<pre><code>public static void RegisterRoutes(RouteCollection routes)
+{
+    routes.IgnoreRoute(&quot;{resource}.axd/{*pathInfo}&quot;);
+    routes.MapChildOnlyActionRoutesFrom(typeof(MvcApplication).Assembly);
+    //Make sure this is the last route you add!
+    routes.MapCatchAllErrorThrowingDefaultRoute();
+}</code></pre><p>You don’t see anything about AttributeRouting in here – this is because it handles its bootstrapping in a file added to the application’s App_Start directory by the NuGet install process.</p>
+<p>With this in place, the calls to RenderAction now work, and when you fat-finger an ActionLink, you get an exception like this:</p>
+<blockquote>
+<p>Unable to find a valid route for the following route values:</p>
+<p>action = NonexistantAction</p>
+<p>controller = NonexistantController</p>
+</blockquote>
+<p> Actually helpful! Any regression testing (or even unit testing on views) should be able to catch this.</p>
+<p>With this information in hand, have fun being just as anal-retentive about your routes as I am!</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

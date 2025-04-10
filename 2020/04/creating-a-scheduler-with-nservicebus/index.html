@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="Sometimes a system needs a kind of rudimentary scheduler to tell it when it’s time to do things. Run a weekly report. Poll a legacy system for changes every night. Run some script every 4 hours. The examples are plentiful but usually quite boring.
+In a message-based system with NServiceBus, starting these tasks is usually as simple as sending a command, but something still has to send that command on the right schedule. We could use a Windows Scheduled Task, but that feels gross for a couple of reasons. First, we have to create a dedicated app just to spin up a send-only endpoint, send one command, and then die. Second, it feels wrong somehow that using scheduled tasks would take an important part of the system (the schedule) and place it entirely outside the system, complicating the deployment, especially if we (the developers) don’t have direct access to the production infrastructure, either because of our sysadmins or because there is no infrastructure because we’re using Platform-as-a-Service in the cloud.
+So we’re dealing with NServiceBus and time, and NServiceBus is supposed to be able to model time through the use of sagas. So couldn’t we implement a simple scheduler using a saga?
+Well sure of course we could. But should we? It’s a classic it depends scenario. So let’s delve a little further. I’ll explain how you could do it, and then we’ll be in a better place to talk about whether that’s even a good idea in the first place."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Creating a scheduler with NServiceBus"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="Sometimes a system needs a kind of rudimentary scheduler to tell it when it’s time to do things. Run a weekly report. Poll a legacy system for changes every night. Run some script every 4 hours. The examples are plentiful but usually quite boring.
+In a message-based system with NServiceBus, starting these tasks is usually as simple as sending a command, but something still has to send that command on the right schedule. We could use a Windows Scheduled Task, but that feels gross for a couple of reasons. First, we have to create a dedicated app just to spin up a send-only endpoint, send one command, and then die. Second, it feels wrong somehow that using scheduled tasks would take an important part of the system (the schedule) and place it entirely outside the system, complicating the deployment, especially if we (the developers) don’t have direct access to the production infrastructure, either because of our sysadmins or because there is no infrastructure because we’re using Platform-as-a-Service in the cloud.
+So we’re dealing with NServiceBus and time, and NServiceBus is supposed to be able to model time through the use of sagas. So couldn’t we implement a simple scheduler using a saga?
+Well sure of course we could. But should we? It’s a classic it depends scenario. So let’s delve a little further. I’ll explain how you could do it, and then we’ll be in a better place to talk about whether that’s even a good idea in the first place."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/2020/wristwatch.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/2020/wristwatch.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Creating a scheduler with NServiceBus - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/2020/wristwatch.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Creating a scheduler with NServiceBus</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            April 15, 2020
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>Sometimes a system needs a kind of rudimentary scheduler to tell it when it’s time to do things. Run a weekly report. Poll a legacy system for changes every night. Run some script every 4 hours. The examples are plentiful but usually quite boring.</p>
+<p>In a message-based system with NServiceBus, starting these tasks is usually as simple as sending a command, but something still has to send that command on the right schedule. We could use a Windows Scheduled Task, but that feels gross for a couple of reasons. First, we have to create a dedicated app just to spin up a send-only endpoint, send one command, and then die. Second, it feels wrong somehow that using scheduled tasks would take an important part of the system (the schedule) and place it entirely outside the system, complicating the deployment, especially if we (the developers) don’t have direct access to the production infrastructure, either because of our sysadmins or because there is no infrastructure because we’re using Platform-as-a-Service in the cloud.</p>
+<p>So we’re dealing with NServiceBus and time, and NServiceBus is supposed to be able to model time through the use of sagas. So couldn’t we implement a simple scheduler using a saga?</p>
+<p>Well sure of course we could. But should we? It’s a classic <em>it depends</em> scenario. So let’s delve a little further. I’ll explain how you <em>could</em> do it, and then we’ll be in a better place to talk about whether that’s even a good idea in the first place.</p>
+<a id="more"></a>
+
+<h2 id="The-saga"><a href="#The-saga" class="headerlink" title="The saga"></a>The saga</h2><p>Remember that a saga is basically a message-driven state machine (see the <a href="https://docs.particular.net/tutorials/nservicebus-sagas/1-getting-started/" target="_blank" rel="noopener">saga basics tutorial</a>) where the state is stored (usually in a database of some kind) between messages. Some of those messages can have a delay (see the <a href="https://docs.particular.net/tutorials/nservicebus-sagas/2-timeouts/" target="_blank" rel="noopener">timeouts tutorial</a>) to wake it up at some point in the future.</p>
+<p>Ideally, a scheduler saga would be able to handle multiple schedules, otherwise, a saga is actually quite a bit of code for something so simple, especially if you have to create multiple of them. Sagas are hard to use as a singleton process anyway—they want to use a <code>CorrelationId</code> to tell between different <em>instances</em> of the saga that all have independent data.</p>
+<p>We can take advantage of that - each saga instance will be for a different schedule, and the <code>CorrelationId</code> will be the type of message we want to send when the schedule comes due.</p>
+<p>First, let’s look at the message we’ll send to start the scheduler saga:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.Text;</span><br><span class="line"><span class="keyword">using</span> NServiceBus;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Messages</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">StartSchedule</span> : <span class="title">ICommand</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">string</span> CommandTypeFullName &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="keyword">public</span> TimeSpan Interval &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="keyword">public</span> WeeklySchedule Weekly &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">StartSchedule</span>(<span class="params"></span>)</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">StartSchedule</span>(<span class="params">Type type, TimeSpan interval</span>)</span></span><br><span class="line"><span class="function">            : <span class="title">this</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            CommandTypeFullName = type.FullName;</span><br><span class="line">            Interval = interval;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">StartSchedule</span>(<span class="params">Type type, WeeklySchedule weekly</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            CommandTypeFullName = type.FullName;</span><br><span class="line">            Weekly = weekly;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">WeeklySchedule</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> DayOfWeek[] DaysOfWeek &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="keyword">public</span> TimeSpan TimeOfDay &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This allows us two variations on schedule. Either we can do a weekly schedule, on multiple days if necessary but all at the same time of day, by sending a message like this:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">await</span> endpoint.Send(<span class="keyword">new</span> StartSchedule(<span class="keyword">typeof</span>(DoFirstThingWeekly), <span class="keyword">new</span> WeeklySchedule</span><br><span class="line">&#123;</span><br><span class="line">    DaysOfWeek = <span class="keyword">new</span> [] &#123; DayOfWeek.Friday &#125;,</span><br><span class="line">    TimeOfDay = <span class="keyword">new</span> TimeSpan(<span class="number">12</span>, <span class="number">0</span> ,<span class="number">0</span>)</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>Or, we can do a regular time span, like every 8 hours for instance, like this:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">await</span> endpoint.Send(<span class="keyword">new</span> StartSchedule(<span class="keyword">typeof</span>(DoSecondThingEvery8Hours), TimeSpan.FromHours(<span class="number">8</span>)));</span><br></pre></td></tr></table></figure>
+
+<p>These calls should be made from your application’s startup. This way, the saga will be “reminded” of the schedule every single time your app starts up, and also covers the use cases of bootstrapping the first run or changing the schedule later on.</p>
+<p>Now let’s get to the actual saga, which I’ll attempt to mark up with comments:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Linq;</span><br><span class="line"><span class="keyword">using</span> System.Threading.Tasks;</span><br><span class="line"><span class="keyword">using</span> NServiceBus;</span><br><span class="line"><span class="keyword">using</span> Messages;</span><br><span class="line"></span><br><span class="line">public class Scheduler : Saga&lt;Scheduler.ScheduleData&gt;,</span><br><span class="line">    IAmStartedByMessages&lt;StartSchedule&gt;,</span><br><span class="line">    IHandleTimeouts&lt;Scheduler.NextTimeTimeout&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ScheduleData</span> : <span class="title">ContainSagaData</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">string</span> CommandTypeFullName &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="keyword">public</span> TimeSpan Interval &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="keyword">public</span> WeeklySchedule Weekly &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">        <span class="keyword">public</span> DateTime NextRun &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">ConfigureHowToFindSaga</span>(<span class="params">SagaPropertyMapper&lt;ScheduleData&gt; mapper</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="comment">// The mapper is responsible for finding the saga data based on a message.</span></span><br><span class="line">        <span class="comment">// So in SQL this would generate something like:</span></span><br><span class="line">        <span class="comment">//     select from ScheduleData </span></span><br><span class="line">        <span class="comment">//     where CommandTypeFullName = @MessageValueOfCommandTypeFullName</span></span><br><span class="line">        mapper.ConfigureMapping&lt;StartSchedule&gt;(m =&gt; m.CommandTypeFullName)</span><br><span class="line">           .ToSaga(s =&gt; s.CommandTypeFullName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Task <span class="title">Handle</span>(<span class="params">StartSchedule message, IMessageHandlerContext context</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="comment">// Either we're starting the saga for the first time, or "reprogramming" it </span></span><br><span class="line">        <span class="comment">// with new schedule data, so we store the new values and then go to Run() </span></span><br><span class="line">        <span class="comment">// to do the dirty work</span></span><br><span class="line">        Data.Interval = message.Interval;</span><br><span class="line">        Data.Weekly = message.Weekly;</span><br><span class="line">        <span class="keyword">return</span> Run(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Task <span class="title">Timeout</span>(<span class="params">NextTimeTimeout state, IMessageHandlerContext context</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="comment">// When a timeout message comes due, we just want to see whether </span></span><br><span class="line">        <span class="comment">// it's time to act</span></span><br><span class="line">        <span class="keyword">return</span> Run(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">async</span> Task <span class="title">Run</span>(<span class="params">IMessageHandlerContext context</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="keyword">var</span> now = DateTime.UtcNow;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// May be because the app just started up or we're "reprogramming" the saga</span></span><br><span class="line">        <span class="comment">// We don't necessarily want to spring into action unless it's really time.</span></span><br><span class="line">        <span class="keyword">if</span> (Data.NextRun &gt; now)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Depending on whether we're doing interval/weekly scheduling, we want to </span></span><br><span class="line">        <span class="comment">// figure out when the next time to run is.</span></span><br><span class="line">        <span class="keyword">if</span> (Data.Interval &gt; TimeSpan.Zero)</span><br><span class="line">        &#123;</span><br><span class="line">            Data.NextRun = now + Data.Interval;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (Data.Weekly != <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// Cycle through the next 7 days until we find the next scheduled date</span></span><br><span class="line">            <span class="keyword">var</span> start = now.Date.AddDays(<span class="number">1</span>);</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> day = start; day &lt; start.AddDays(<span class="number">7</span>); day = day.AddDays(<span class="number">1</span>))</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> (Data.Weekly.DaysOfWeek.Contains(day.DayOfWeek))</span><br><span class="line">                &#123;</span><br><span class="line">                    Data.NextRun = day + Data.Weekly.TimeOfDay;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Get a type from the command name. Must be in same assembly as StartSchedule</span></span><br><span class="line">        <span class="keyword">var</span> commandType = <span class="keyword">typeof</span>(StartSchedule).Assembly</span><br><span class="line">            .GetType(Data.CommandTypeFullName);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// Create &amp; send instance of the command. Must be parameterless constructor</span></span><br><span class="line">        <span class="keyword">var</span> command = Activator.CreateInstance(commandType) <span class="keyword">as</span> ICommand;</span><br><span class="line">        <span class="keyword">await</span> context.Send(command);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Request the timeout for the next activation</span></span><br><span class="line">        <span class="keyword">await</span> RequestTimeout&lt;NextTimeTimeout&gt;(context, Data.NextRun);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">NextTimeTimeout</span> &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Does this work? Sure! Well, mostly. It’s got some issues, but depending on the project, these may be anything from easy-to-ignore minor details all the way up to showstoppers. Let’s look at each of these “it depends” scenarios.</p>
+<h2 id="Clock-drift"><a href="#Clock-drift" class="headerlink" title="Clock drift"></a>Clock drift</h2><p>Arguably the biggest problem with this whole saga implementation are these 4 lines, which at first glance look logically correct:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (Data.NextRun &gt; now)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Because we want to be able to “reprogram” the saga at any time, we want to be able to ignore some messages, like if a <code>StartSchedule</code> message comes in that’s only the result of your app restarting.</p>
+<p>Logically, the timeout message should occur after <code>now</code> and should skip this check—after all that’s the point of a timeout.</p>
+<p>But what if the timeout is handled by a message transport like Azure Service Bus that has native scheduled messages, and what if the clock on the processing server has drifted such that it is a few seconds behind official “Azure Time”?</p>
+<p>The result will be that the message scheduled for 12:00:00 UTC may arrive, as far as the processing server is concerned, at 11:59:57 UTC. At that point, <code>Data.NextRun</code> of noon is 3 seconds in the “future”, so the message will be ignored.</p>
+<p>Not only will the scheduled task <em>not</em> fire, but because the next schedule is set at the same time, the scheduler is essentially in limbo until the next time your app starts up to send a <code>StartSchedule</code> that will be after the <code>Data.NextRun</code> time.</p>
+<p>One way to try to fix this is to have a bit of tolerance for clock drift in the code, like this:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (Data.NextRun &gt; now.AddSeconds(<span class="number">-30</span>))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This way, the clock can drift up to 30 seconds and still get the behavior we want. However, this saga is now pretty useless for doing anything with sub-minute times with much accuracy. In the cases where I’ve done this, I only care that the task happens once a day, or maybe every 8 hours, and I’m not too fussed if it happens 30 seconds off its scheduled time. I just want it done.</p>
+<h2 id="Reprogramming-is-limited"><a href="#Reprogramming-is-limited" class="headerlink" title="Reprogramming is limited"></a>Reprogramming is limited</h2><p>In this saga, you can reprogram the timer, but only by deploying new code. Because we’re storing the next run time and not taking any action before that time, you basically can’t reprogram it to anything <em>faster</em> than what it was doing before. If it’s not going to run until 8 hours from now, and you reprogram it to be an hourly timer, then sorry, it’s not going to run for 8 hours, but <em>then</em> it will run for every hour after that.</p>
+<p>This becomes more of a problem if you accidentally have a deployment set a next run time on the order of days/months, and then want it to be hourly for some reason.</p>
+<p>It would be possible to change the code to always recalculate the next run time on receipt of <code>StartSchedule</code>, but then the code can get much more complex, and you run the risk of upsetting the schedule if for some reason you encounter more frequent app restarts.</p>
+<p>In my situation, my schedules are completely arbitrary and I have no intention of changing them…ever. So no need to worry.</p>
+<h2 id="Auditing"><a href="#Auditing" class="headerlink" title="Auditing"></a>Auditing</h2><p>If you’re auditing messages to ServiceControl, and want to be able to view diagrams in ServiceInsight, then this scheduler has a bit of a problem because all the messages coming from this saga are going to be viewed as part of the conversation because they all share the same <code>ConversationId</code> header. So there wouldn’t be any way to look at the message flow from just the most recent execution, or the one that happened 3 days ago. The diagrams would get bigger and more complex, and it wouldn’t take very long for the diagrams to become unusable.</p>
+<p>This would be really frustrating if each schedule kicks off some process, such as a file import, with many substeps that you’d want to be able to visually debug later.</p>
+<p>Well, there are ways around such things, like changing the <code>ConversationId</code> so that the conversations are separate. It’s not possible to directly set the <code>ConversationId</code> within a handler though.</p>
+<p>This post was getting pretty long, and changing the <code>ConversationId</code> has uses outside of this scheduler saga, so I wrote a separate post on <a href="/2020/04/overriding-the-nservicebus-conversationid/">overriding the NServiceBus ConversationId</a>. If you create the behavior outlined in that article, then you can change the saga code a bit.</p>
+<p>With the behavior outlined in that article in place, you can change this code in the saga:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create an instance of the command and send it. Must be parameterless constructor</span></span><br><span class="line"><span class="keyword">var</span> command = Activator.CreateInstance(commandType) <span class="keyword">as</span> ICommand;</span><br><span class="line"><span class="keyword">await</span> context.Send(command);</span><br></pre></td></tr></table></figure>
+
+<p>To this:</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create an instance of the command and send it. Must be parameterless constructor</span></span><br><span class="line"><span class="keyword">var</span> command = Activator.CreateInstance(commandType) <span class="keyword">as</span> ICommand;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> sendOptions = <span class="keyword">new</span> SendOptions();</span><br><span class="line">sendOptions.SetHeader(ModifyConversationIdBehavior.OverrideHeader, Guid.NewGuid().ToString());</span><br><span class="line"><span class="keyword">await</span> context.Send(command, sendOptions);</span><br></pre></td></tr></table></figure>
+
+<p>Now every command sent out by the scheduler will be a fresh conversation you can look at individually in ServiceInsight.</p>
+<p>Of course, if you’re not auditing messages at all, then you don’t need to do anything like that.</p>
+<h2 id="Date-and-time-is-just-hard"><a href="#Date-and-time-is-just-hard" class="headerlink" title="Date and time is just hard"></a>Date and time is just hard</h2><p>This is a super-simple scheduler, doing only weekly and interval scheduling. For me, that’s all I need. If you wanted to do any of the fancy things your calendar app can do, like:</p>
+<ul>
+<li>Repeat every N days</li>
+<li>Repeat every N weeks</li>
+<li>Repeat every N months</li>
+<li>Repeat on the Nth Tuesday of the month</li>
+<li>Repeat every N years</li>
+<li>Ending after N occurrences</li>
+<li>Ending on X date</li>
+<li>Anything to do with time zones</li>
+<li>Anything where you care about Daylight Saving</li>
+<li>Anything where you care about leap days</li>
+<li>Anything involving <a href="https://www.timeanddate.com/calendar/determining-easter-date.html" target="_blank" rel="noopener">Easter</a></li>
+</ul>
+<p>…well then you’re out of luck. Date and time are hard, and if you don’t believe me, go read some blog posts by <a href="https://codeofmatt.com/" target="_blank" rel="noopener">Matt Johnson-Pint</a>.  I don’t recommend trying to extend the code to handle any of these other scenarios. It’s not worth it. Keep reading and pick a different option.</p>
+<h2 id="Scheduling-alternatives"><a href="#Scheduling-alternatives" class="headerlink" title="Scheduling alternatives"></a>Scheduling alternatives</h2><p>I’ve presented a simple scheduler saga, and a bunch of problems it might cause you, all of which you can address to some varying degree. But is it worth it?</p>
+<p><img src="/images/2020/could-should.jpg" alt="Your scientists were so preoccupied with whether or not you could, you didn&#39;t stop to think if you should"></p>
+<p>If you’re running a small project with very simple scheduling needs, and none of the sections above gives you pause, then you’ll probably be fine. Otherwise, you might want to think about one of these alternatives, any of which you can use to send an NServiceBus message.</p>
+<ul>
+<li><a href="https://www.quartz-scheduler.net/" target="_blank" rel="noopener">Quartz.NET</a> is a full-featured scheduler library for .NET. It can be complex, but it can do anything you need it to.</li>
+<li><a href="https://www.hangfire.io/" target="_blank" rel="noopener">Hangfire</a> is a way to perform background processing on .NET without a Windows service or separate process. It can handle recurring jobs using a CRON schedule and persists the jobs in a database, so you don’t have to worry about app restarts mucking up your schedule.</li>
+<li><a href="https://azure.microsoft.com/en-us/services/functions/" target="_blank" rel="noopener">Azure Functions</a> has a <a href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=csharp" target="_blank" rel="noopener">timer trigger</a> that runs a CRON schedule.</li>
+</ul>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>A bad consultant will say “it depends” and leave it at that. A good one will say “it depends” but then tell you the things it depends on.</p>
+<p>My aim in writing this article is not so much to share the code for the scheduler saga, but to highlight all the “it depends” around whether or not it’s a good tool for your particular job.</p>
+<p>I do use this exact scheduler saga in a project. It’s a small project, more of a proof of concept, that runs as a single NServiceBus endpoint embedded in an Azure App Service run using Visual Studio Azure credits. I’m already using NServiceBus in this project, and so I’m looking for reliable scheduling (i.e. not <code>System.Timers.Timer</code>) with the lowest possible barrier to entry.</p>
+<p>None of the caveats in this article apply to me, so I’m happy to use it. Though I must advmit, if I had to do it over, I would strongly consider using an Azure Functions timer trigger instead.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

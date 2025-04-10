@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="Note: Thanks to a suggestion from Asbjørn Ulsberg, I have made this source code available as a GitHub repository. As I wrote it, it’s really a single-use tool - it even has my user path hard-coded. Please feel free to fork it and add whatever you like!
+My wife is an incredibly talented woman. While she’s not working her day job at a magazine publisher, she makes and sells fondant-covered cakes, cupcakes, cookies, and other goodies. Let me tell you how difficult it is to try losing weight when there are constantly cake scraps lying around!
+If you live in the Twin Cities area or are just plain curious, check out her website, Sweets by Natalie Kay. Some of my favorites: a Chocolate Cherry Chip Transformer Cake, and this Mario-Kart inspired birthday cake.
+Her site is a WordPress blog that she started out its life hosted on wordpress.com, which is nice but doesn’t give a lot of flexibility over themes and layout. When she wanted more flexibility, the task of converting the content to a different hosting provider fell to the family IT director.
+WordPress contains export and import functionality, but a problem quickly emerged. WordPress.com adds width and height parameters to the querystring of images that are embedded within post text, which are intercepted by a handler that resizes the image to those dimensions before serving it to the client. However, the export file contains the URLs of the full size image.
+My wife captured these images with her 10-megapixel D-SLR camera. These are not small files. The images (2-4 MB each) would load at a crawl, slowing down the entire page.
+Programmer husband to the rescue! It’s nice to be needed."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Resizing Images from a Wordpress.com XML Export"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="Note: Thanks to a suggestion from Asbjørn Ulsberg, I have made this source code available as a GitHub repository. As I wrote it, it’s really a single-use tool - it even has my user path hard-coded. Please feel free to fork it and add whatever you like!
+My wife is an incredibly talented woman. While she’s not working her day job at a magazine publisher, she makes and sells fondant-covered cakes, cupcakes, cookies, and other goodies. Let me tell you how difficult it is to try losing weight when there are constantly cake scraps lying around!
+If you live in the Twin Cities area or are just plain curious, check out her website, Sweets by Natalie Kay. Some of my favorites: a Chocolate Cherry Chip Transformer Cake, and this Mario-Kart inspired birthday cake.
+Her site is a WordPress blog that she started out its life hosted on wordpress.com, which is nice but doesn’t give a lot of flexibility over themes and layout. When she wanted more flexibility, the task of converting the content to a different hosting provider fell to the family IT director.
+WordPress contains export and import functionality, but a problem quickly emerged. WordPress.com adds width and height parameters to the querystring of images that are embedded within post text, which are intercepted by a handler that resizes the image to those dimensions before serving it to the client. However, the export file contains the URLs of the full size image.
+My wife captured these images with her 10-megapixel D-SLR camera. These are not small files. The images (2-4 MB each) would load at a crawl, slowing down the entire page.
+Programmer husband to the rescue! It’s nice to be needed."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Resizing Images from a Wordpress.com XML Export - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Resizing Images from a Wordpress.com XML Export</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            July 21, 2010
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p><strong>Note: Thanks to a suggestion from Asbjørn Ulsberg, I have made this source code available as a <a href="https://github.com/DavidBoike/WordPressExportConverter" target="_blank" rel="noopener">GitHub repository</a>. As I wrote it, it’s really a single-use tool - it even has my user path hard-coded. Please feel free to fork it and add whatever you like!</strong></p>
+<p>My wife is an incredibly talented woman. While she’s not working her day job at a magazine publisher, she makes and sells fondant-covered cakes, cupcakes, cookies, and other goodies. Let me tell you how difficult it is to try losing weight when there are constantly cake scraps lying around!</p>
+<p>If you live in the Twin Cities area or are just plain curious, check out her website, <a href="http://www.sweetsbynataliekay.com" target="_blank" rel="noopener">Sweets by Natalie Kay</a>. Some of my favorites: a <a href="http://www.sweetsbynataliekay.com/2010/05/chocolate-cherry-chip-transformer-cake/" target="_blank" rel="noopener">Chocolate Cherry Chip Transformer Cake</a>, and this <a href="http://www.sweetsbynataliekay.com/2009/06/erics-birthday/" target="_blank" rel="noopener">Mario-Kart inspired birthday cake</a>.</p>
+<p>Her site is a WordPress blog that she started out its life hosted on <a href="http://wordpress.com" target="_blank" rel="noopener">wordpress.com</a>, which is nice but doesn’t give a lot of flexibility over themes and layout. When she wanted more flexibility, the task of converting the content to a different hosting provider fell to the family IT director.</p>
+<p>WordPress contains export and import functionality, but a problem quickly emerged. WordPress.com adds width and height parameters to the querystring of images that are embedded within post text, which are intercepted by a handler that resizes the image to those dimensions before serving it to the client. However, the export file contains the URLs of the full size image.</p>
+<p>My wife captured these images with her 10-megapixel D-SLR camera. These are not small files. The images (2-4 MB each) would load at a crawl, slowing down the entire page.</p>
+<p>Programmer husband to the rescue! It’s nice to be needed.</p>
+<a id="more"></a>
+
+<p>The first hurdle was getting the XML export file to load at all, as WordPress exports invalid XML, a fact that nearly made me gag!</p>
+<p><strong>XmlException was unhandled</strong><br> <em>‘atom’ is an undeclared namespace. Line 149, position 3.</em></p>
+<p>Seriously. Apparently WordPress exports by outputting text and not with any sort of complaint XML library, or blindly outputs some content elements without worrying about what XML namespaces that content might be using. Since I didn’t intend to do this dozens of times, I decided this would be pretty easy to fix manually by adding the atom declaration to the rss element:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;rss version&#x3D;&quot;2.0&quot;</span><br><span class="line">    xmlns:excerpt&#x3D;&quot;http:&#x2F;&#x2F;wordpress.org&#x2F;export&#x2F;1.0&#x2F;excerpt&#x2F;&quot;</span><br><span class="line">    xmlns:content&#x3D;&quot;http:&#x2F;&#x2F;purl.org&#x2F;rss&#x2F;1.0&#x2F;modules&#x2F;content&#x2F;&quot;</span><br><span class="line">    xmlns:wfw&#x3D;&quot;http:&#x2F;&#x2F;wellformedweb.org&#x2F;CommentAPI&#x2F;&quot;</span><br><span class="line">    xmlns:dc&#x3D;&quot;http:&#x2F;&#x2F;purl.org&#x2F;dc&#x2F;elements&#x2F;1.1&#x2F;&quot;</span><br><span class="line">    xmlns:wp&#x3D;&quot;http:&#x2F;&#x2F;wordpress.org&#x2F;export&#x2F;1.0&#x2F;&quot;</span><br><span class="line">    xmlns:atom&#x3D;&quot;http:&#x2F;&#x2F;whocares.com&#x2F;it-seriously-doesnt-matter&quot;</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+
+<p>The .NET XmlDocument will not care what the URL is or if it’s “correct”, it only cares that the atom namespace is declared.</p>
+<p>After that, my conversion app does the following:</p>
+<ol>
+<li><p>Load the XML Document.</p>
+</li>
+<li><p>Select each blog entry with an XPath expression.</p>
+</li>
+<li><p>Use very simple regular expressions to identify the start of each image tag, and its corresponding closing bracket, outputting everything outside the image tag(s) as-is.</p>
+</li>
+<li><p>Within each image tag, identify each HTML attribute, again by regular expression. If the width/height attributes are specified, save the values. If the src attribute contains a URL that includes w=? or h=? in the querystring, save those values</p>
+</li>
+<li><p>With desired width and height values in hand, use the same attribute-finding regular expression to locate the src attribute and output a new URL that contains the width and height attributes that will tap into WordPress.com’s image resizing feature.</p>
+<p>Using this modified export file, the WordPress import process downloads the downsized images from WordPress.com for the version embedded in the post text, but you can still click through to the full version of the image in all its megapixel glory.</p>
+</li>
+</ol>
+<p>So, here is the source:</p>
+<pre><code>using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml;
+using System.Text.RegularExpressions;
+namespace WordPressConverter
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string inpath = @&quot;C:\Users\Dave\Desktop\wordpress.input.xml&quot;;
+            string outpath = @&quot;C:\Users\Dave\Desktop\wordpress.output.xml&quot;;
+            ConvertWordpressExport(inpath, outpath);
+        }
+        private static void ConvertWordpressExport(string inpath, string outpath)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(inpath);
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
+            nsmgr.AddNamespace(&quot;content&quot;, &quot;http://purl.org/rss/1.0/modules/content/&quot;);
+            XmlNodeList nodes = doc.SelectNodes(&quot;/rss/channel/item/content:encoded&quot;, nsmgr);
+            foreach (XmlNode n in nodes)
+            {
+                string newText = ProcessBlogPost(n.InnerText);
+                n.InnerText = null;
+                n.AppendChild(doc.CreateCDataSection(newText));
+            }
+            doc.Save(outpath);
+            Console.WriteLine(&quot;Done&quot;);
+            Console.ReadLine();
+        }
+        private static Regex findImgTag = new Regex(&quot;
+        private static Regex findEndImg = new Regex(&quot;/&gt;&quot;, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static string ProcessBlogPost(string blogPost)
+        {
+            StringBuilder output = new StringBuilder();
+            int pos = 0;
+            while (true)
+            {
+                Match startImg = findImgTag.Match(blogPost, pos);
+                if (!startImg.Success)
+                {
+                    output.Append(blogPost.Substring(pos));
+                    break;
+                }
+                else
+                {
+                    output.Append(blogPost.Substring(pos, startImg.Index - pos));
+                    Match endImg = findEndImg.Match(blogPost, startImg.Index);
+                    pos = endImg.Index + endImg.Length;
+                    string imgTag = blogPost.Substring(startImg.Index, pos - startImg.Index);
+                    ImgTagProcessor p = new ImgTagProcessor(imgTag);
+                    output.Append(p.Process());
+                }
+            }
+            return output.ToString();
+        }
+        class ImgTagProcessor
+        {
+            static Regex findAtts = new Regex(@&quot;(?\w+)=&quot;&quot;(?[^&quot;&quot;]*)&quot;&quot;&quot;, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            static Regex queryW = new Regex(@&quot;w=(\d+)&quot;, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            static Regex queryH = new Regex(@&quot;h=(\d+)&quot;, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            string imgTag;
+            string width;
+            string height;
+            internal ImgTagProcessor(string imgTag)
+            {
+                this.imgTag = imgTag;
+            }
+            internal string Process()
+            {
+                // Extract width and height info
+                foreach (Match m in findAtts.Matches(imgTag))
+                {
+                    switch (m.Groups[&quot;Att&quot;].Value)
+                    {
+                        case &quot;width&quot;:
+                            this.width = m.Groups[&quot;Value&quot;].Value;
+                            break;
+                        case &quot;height&quot;:
+                            this.height = m.Groups[&quot;Value&quot;].Value;
+                            break;
+                        case &quot;src&quot;:
+                            Uri uri = new Uri(m.Groups[&quot;Value&quot;].Value);
+                            string query = uri.Query;
+                            if (!String.IsNullOrEmpty(query))
+                            {
+                                Match matchW = queryW.Match(query);
+                                Match matchH = queryH.Match(query);
+                                if (matchW.Success)
+                                    width = matchW.Groups[1].Value;
+                                if (matchH.Success)
+                                    height = matchH.Groups[1].Value;
+                            }
+                            break;
+                    }
+                }
+                return findAtts.Replace(imgTag, new MatchEvaluator(EvaluateAttributeMatch));
+            }
+            string EvaluateAttributeMatch(Match m)
+            {
+                switch (m.Groups[&quot;Att&quot;].Value)
+                {
+                    case &quot;src&quot;:
+                        UriBuilder uri = new UriBuilder(m.Groups[&quot;Value&quot;].Value);
+                        List queryItems = new List();
+                        if (width != null)
+                            queryItems.Add(&quot;w=&quot; + width);
+                        if (height != null)
+                            queryItems.Add(&quot;h=&quot; + height);
+                        uri.Query = String.Join(&quot;&amp;&quot;, queryItems.ToArray());
+                        return &quot;src=\&quot;&quot; + uri.ToString() + &quot;\&quot;&quot;;
+                    default:
+                        return m.Value;
+                }
+            }
+        }
+    }
+}</code></pre><p>I hope someone else can find it useful!</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

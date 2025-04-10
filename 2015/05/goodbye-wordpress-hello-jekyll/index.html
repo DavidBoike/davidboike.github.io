@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="WordPress and I had an altercation the other day.
+I logged in to the management interface for my blog, and it was begging me to update to WordPress 4."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Goodbye WordPress, Hello Jekyll"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="WordPress and I had an altercation the other day.
+I logged in to the management interface for my blog, and it was begging me to update to WordPress 4."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>Goodbye WordPress, Hello Jekyll - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>Goodbye WordPress, Hello Jekyll</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            May 21, 2015
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>WordPress and I had an altercation the other day.</p>
+<p>I logged in to the management interface for my blog, and it was begging me to update to WordPress 4.2.2, and given the <a href="http://www.cvedetails.com/vulnerability-list/vendor_id-2337/product_id-4096/" target="_blank" rel="noopener">number of security vulnerabilities</a> that have been in the news lately, I figured that was probably a good idea.</p>
+<p>But this time, the automated, one-click update process failed me for the first time. I don’t know precisely why, but it blew up mid-stream. Luckily the public portion of the site was still serving, but the admin was completely roasted. So I had to go through the painful process of doing a manual upgrade over FTP.</p>
+<p>Luckily, I got everything working on Version 4.2.2, but I resolved at that point that 4.2.2 would be my last.</p>
+<p>It’s not that I’m a huge WordPress hater. When it works it works well enough. But I absolutely disdain PHP, kind of like <a href="http://eev.ee/blog/2012/04/09/php-a-fractal-of-bad-design/" target="_blank" rel="noopener">this guy</a>, so I can’t really go hack on it very well because to do so would give me the itchies all over. The freedom I want to have with my blog makes WordPress.com hosting impossible, but I don’t want to go through the hassle of self-hosting either. Plus I really <em>really</em> want to the particular webhost I’m using <a href="http://gawker.com/5787676/meet-godaddys-ridiculous-elephant-killing-ceo" target="_blank" rel="noopener">because</a> <a href="http://breakupwithgodaddy.com/" target="_blank" rel="noopener">reasons</a>, and moving my blog is a great first step.</p>
+<p>I recently joined <a href="http://particular.net" target="_blank" rel="noopener">Particular Software</a> and we do everything on <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>. No really, I mean <em>everything</em>. (Well OK, GitHub and <a href="https://slack.com/" target="_blank" rel="noopener">Slack</a>.) And while I’m no slouch at HTML when I really want to write, nothing beats Markdown. So it makes sense to take advantage of that.</p>
+<p>So, if you’re reading this post, my blog is now run by <a href="http://jekyllrb.com/" target="_blank" rel="noopener">Jekyll</a> on <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a>. How does that work? Glad you asked.</p>
+<ol>
+<li>Create a new GitHub repository called <em>your-github-username</em>.github.io - mine is <a href="https://github.com/DavidBoike/davidboike.github.io" target="_blank" rel="noopener">davidboike.github.io</a>.</li>
+<li>Create a Jekyll repository. (This is the tricky part.)</li>
+<li>Write your posts as Markdown files.</li>
+<li>Push your changes to GitHub.</li>
+<li>GitHub compiles your posts from your master branch into HTML pages serves it up as static content.</li>
+</ol>
+<p>Rather than do a whole bunch of work on #2, I decided to stand on the shoulders of <a href="http://haacked.com" target="_blank" rel="noopener">Phil Haack</a> whose <a href="http://haacked.com/archive/2013/12/02/dr-jekyll-and-mr-haack/" target="_blank" rel="noopener">blog post on converting his own blog</a> had originally informed me Jekyll, and <del>take inspiration from</del> outright steal his Jekyll repository as a starting point. Luckily, <a href="https://github.com/Haacked/feedback/issues/69" target="_blank" rel="noopener">he’s OK with that</a>. I did make some changes to make it my own.</p>
+<p>The trickiest part turned out to be porting my content. There is a <a href="http://import.jekyllrb.com/docs/wordpress/" target="_blank" rel="noopener">WordPress to Jekyll converter</a> but it goes pretty crazy on you, and doesn’t convert the WordPress HTML to Markdown. So I had to do a lot of work on my own to <a href="http://stackoverflow.com/questions/6119793/convert-html-or-rtf-to-markdown-or-wiki-compatible-syntax" target="_blank" rel="noopener">convert the HTML to Markdown with Pandoc</a> and then clean up a lot of the mess afterwards.</p>
+<p>But it’s definitely worth it. Now I don’t have to worry if my blog is down. That’s GitHub’s problem. I can edit my posts with Markdown using the same GitHub workflow I use every day. And it means I can accept pull requests on my blog! So if I make a mistake, please speak up and correct me!</p>
+<p>Hopefully this will make it even easier for me to blog in the future.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="Sometimes technology is more than just technology.  Sometimes it reaches out and grabs you, and you have a moment of bliss where you realize everything has changed, that this is going to change everything and make your life better.
+LINQ was one of those technologies for me.  Not the query-like syntax, per se; I consider that to be just a fancy compiler trick.  But the set of extension methods for IEnumerable and the way they can reduce a complex looping structure to a line or two is amazing and game-changing.
+Over the last year I have been embracing NServiceBus.  Jonathan Oliver describes NServiceBus as the best thing to happen to distributed systems since Ethernet, and he’s right on the money.  My first major project using NServiceBus has now been in production for a few months, and since then I’ve been reflecting on the process.
+Now I realize there was one moment – that perfect moment of bliss – when I realized NServiceBus had changed everything."/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="David Boike"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="My NServiceBus moment of bliss"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="Sometimes technology is more than just technology.  Sometimes it reaches out and grabs you, and you have a moment of bliss where you realize everything has changed, that this is going to change everything and make your life better.
+LINQ was one of those technologies for me.  Not the query-like syntax, per se; I consider that to be just a fancy compiler trick.  But the set of extension methods for IEnumerable and the way they can reduce a complex looping structure to a line or two is amazing and game-changing.
+Over the last year I have been embracing NServiceBus.  Jonathan Oliver describes NServiceBus as the best thing to happen to distributed systems since Ethernet, and he’s right on the money.  My first major project using NServiceBus has now been in production for a few months, and since then I’ve been reflecting on the process.
+Now I realize there was one moment – that perfect moment of bliss – when I realized NServiceBus had changed everything."/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="David Boike&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+        <meta name="twitter:site" content="@DavidBoike"/>
+    
+
+    
+        <meta name="twitter:image" content="https://www.davidboike.dev/images/view-from-space.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>My NServiceBus moment of bliss - David Boike&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15084368-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">David Boike's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike/feedback/issues/new" target="_blank" rel="noopener">
+                            
+                                Contact
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://github.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://twitter.com/DavidBoike" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-twitter fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.linkedin.com/in/david-boike/" target="_blank" rel="noopener">
+                            
+                                <i class="fa fa-linkedin fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/feed.xml">
+                            
+                                <i class="fa fa-rss fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/images/view-from-space.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>My NServiceBus moment of bliss</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            February 7, 2011
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>Sometimes technology is more than just technology.  Sometimes it reaches out and grabs you, and you have a moment of bliss where you realize everything has changed, that this is going to change <em>everything</em> and make your life better.</p>
+<p><a href="http://msdn.microsoft.com/en-us/library/bb308959.aspx" target="_blank" rel="noopener">LINQ</a> was one of those technologies for me.  Not the query-like syntax, per se; I consider that to be just a fancy compiler trick.  But the set of extension methods for IEnumerable and the way they can reduce a complex looping structure to a line or two is amazing and game-changing.</p>
+<p>Over the last year I have been embracing <a href="http://www.nservicebus.com/" target="_blank" rel="noopener">NServiceBus</a>.  <a href="http://jonathan-oliver.blogspot.com/" target="_blank" rel="noopener">Jonathan Oliver</a> describes NServiceBus as the best thing to happen to distributed systems since Ethernet, and he’s right on the money.  My first major project using NServiceBus has now been in production for a few months, and since then I’ve been reflecting on the process.</p>
+<p>Now I realize there was one moment – that perfect moment of bliss – when I realized NServiceBus had changed everything.</p>
+<a id="more"></a>
+
+<h2 id="Before-NServiceBus"><a href="#Before-NServiceBus" class="headerlink" title="Before NServiceBus"></a>Before NServiceBus</h2><p>Before I get to that, I should mention a project I undertook before NServiceBus.</p>
+<p>A couple years ago I designed multithreaded e-mail sender.  Today it sends 2 million e-mails per month, only to users who have opted in, of course. It has specific business requirements, but at its core it takes a mailing, performs mail merges for thousands of users, separates the messages into batches, and then attempts to send those message batches out as fast as possible.</p>
+<p>Today I know this cries out for NServiceBus.  But it doesn’t have NServiceBus.  The result is a maintenance nightmare, both for server maintenance and software upgrades.</p>
+<p>There are no message queues.  Everything relies on the database as the source of truth, and in order to run as fast as possible, the round-trips to the database are kept to a minimum.  When a message batch is sent, all of the message rows for that batch are updated with the sender’s job ID, so no other sender will try to send out those messages.</p>
+<p>Assuming everything goes well and no exceptions are thrown, one database call updates all of the messages from that job ID as having been sent.  If there are any exceptions, those are reported first- one at a time-and then the rest are marked as sent in the same way.</p>
+<p>So in the middle of a message batch, state exists only in server memory.  The job ID is a Guid.  If the mail sender shuts down improperly in the middle of the batch, that job ID is lost, the batch is left in limbo, and a restarted service cannot pick up the pieces because the job ID is lost.  The mailing as a whole can never complete, and the only way it can ever clear out is via manual intervention in the database to requeue that job’s messages.  This may result in some of those users receiving double messages.</p>
+<p>This doesn’t happen often, because we bend over backward to avoid it.  The application server can only be restarted after carefully inspecting the schedule of messages to be sent, looking for a lengthy break, just in case something were to go wrong.  This gets harder and harder as more clients are added.</p>
+<p>And there’s no backup for this system.  And there’s no way to scale it out.</p>
+<h2 id="How-I-Learned-to-Stop-Worrying-and-Love-the-Bus"><a href="#How-I-Learned-to-Stop-Worrying-and-Love-the-Bus" class="headerlink" title="How I Learned to Stop Worrying and Love the Bus"></a>How I Learned to Stop Worrying and Love the Bus</h2><p>My new project was essentially a big RSS processing system.  I began investigating NServiceBus because I knew this system had the potential to grow to a point requiring horizontal scale-out.  I really approached NServiceBus just as a method of <a href="/2010/03/nservicebus-a-solution-for-load-balancing-console-applications/">load-balancing a console process</a> the same way I would load-balance a Web application.</p>
+<p>An RSS processor as assembled with NServiceBus is a lot like an assembly line.  A feed is downloaded, and then split into its constituent items.  Each item is sent off to an item processor, where depending upon feed configuration, many things can happen.  Images may be downloaded and resized.  Referenced videos may be transcoded to different formats.  The system could really do anything with an item, depending on its configuration in the database.  A saga is responsible for waiting until all the items have been processed, at which point the feed is complete and other applications can be notified via events.  Above it all, a scheduler is responsible for watching over everything and commanding the feed to reprocess after a given timeout.</p>
+<p>The real difficulty is there’s no way to predict how long a feed may take to process.  If it is straight text with minimal processing required, it could finish in seconds.  If it is media rich and full of videos that require transcoding, it could take an hour or more.  The scheduler must accept that it is processing and not try to requeue the feed while it is already being worked on.</p>
+<p>Before NServiceBus, this would have been a recipe for disaster.  Once the scheduler marks the feed as in process, it has to accept that this is true.  If, further down the line, feed processing fails for some reason, that feed would become locked out.  Content would grow stale, customers would grow angry, and I would get a phone call.  I can’t stress enough how I absolutely <strong>detest</strong> phone calls.</p>
+<p>My moment of NServiceBus bliss came shortly after launching the system, after customers had begun to enter their feeds and we were processing real data.  No matter how many edge cases you test for, it is apparently impossible to predict all of the ways in which customers will screw up an XML feed.</p>
+<p>I don’t even remember what the error was, but it was caused by esoteric, weird, just plain wrong stuff in the client’s XML.  Stuff like RSS items having duplicate elements.  Who does that?</p>
+<p>I started to panic a little bit.  My error queue was starting to fill up at a somewhat alarming rate.  I started slogging through the logs, looking for the exception messages.  For every exception that was a matter of improper client input, I added validation and reporting.  Every exception that was really a bug, I fixed.  I committed my code, my continuous integration server created a new build, and I installed it.</p>
+<p>Then came the moment of truth.  I ran ReturnToSourceQueue.exe and began to pray that this NServiceBus thing had really been worth the time it had taken to learn.</p>
+<p>And everything just worked … perfectly.</p>
+<p>All of the feeds began processing right where they left off, and all of the feeds returned to the OK status.  All the proverbial lights were shining green.  I didn’t have to go into the database to manually fix things.</p>
+<p>Ever since then I’ve been an NServiceBus acolyte.  I’m not sure if I ever would have been able to complete this project without it.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>I’m not sure if I’ll ever be able to go back and redesign my e-mail sender project, but I would very much appreciate the opportunity.  Instead of constant database queries to get a batch of messages to send, how nice would it be to create an NServiceBus message for each one, and then trust in eventual consistency that those messages will be delivered or arrive in an error queue?  The process could be scaled out to multiple machines, and if a process fails or a server needs to be restarted, those messages will still be waiting in MSMQ when the endpoint returns.</p>
+<p>Jonathan Oliver is right.  NServiceBus is the best thing to happen to distributed systems since Ethernet.  Scalability, reliability, and maintainability cease being difficult to attain, and become commonplace.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+    <hr />
+    <h3>Comments:</h3>
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                        <li>
+                            <a href="https://twitter.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/DavidBoike" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                        <li>
+                            <a href="https://www.linkedin.com/in/david-boike/" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2025 David Boike<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+<script type="text/javascript">
+    var disqus_shortname = 'davidboike';
+
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+
+</html>
